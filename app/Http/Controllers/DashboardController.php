@@ -17,11 +17,12 @@ class DashboardController extends Controller
         $filtered = collect($allEmployees);
 
         if ($search) {
-            if ($type && in_array($type, ['nom', 'prenom', 'telephone', 'service', 'departement'])) {
+            $searchable = ['nom', 'numero', 'direction', 'sous_direction', 'departement', 'service', 'site'];
+            if ($type && in_array($type, $searchable)) {
                 $filtered = $filtered->filter(fn($emp) => stripos($emp[$type] ?? '', $search) !== false);
             } else {
-                $filtered = $filtered->filter(function ($emp) use ($search) {
-                    foreach (['nom', 'prenom', 'telephone', 'service', 'departement'] as $field) {
+                $filtered = $filtered->filter(function ($emp) use ($search, $searchable) {
+                    foreach ($searchable as $field) {
                         if (stripos($emp[$field] ?? '', $search) !== false) return true;
                     }
                     return false;
@@ -54,17 +55,22 @@ class DashboardController extends Controller
             ]);
         }
 
-        return view('dashboard', compact('employees'));
+        return view('dashboard', [
+            'employees' => $employees,
+            'allEmployees' => $allEmployees,
+        ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'telephone' => 'required|string|max:50',
-            'service' => 'required|string|max:255',
+            'numero' => 'required|string|max:50',
+            'direction' => 'required|string|max:255',
+            'sous_direction' => 'required|string|max:255',
             'departement' => 'required|string|max:255',
+            'service' => 'required|string|max:255',
+            'site' => 'required|string|max:255',
         ]);
 
         $palette = $this->servicePalette();
@@ -86,10 +92,12 @@ class DashboardController extends Controller
     {
         $data = $request->validate([
             'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'telephone' => 'required|string|max:50',
-            'service' => 'required|string|max:255',
+            'numero' => 'required|string|max:50',
+            'direction' => 'required|string|max:255',
+            'sous_direction' => 'required|string|max:255',
             'departement' => 'required|string|max:255',
+            'service' => 'required|string|max:255',
+            'site' => 'required|string|max:255',
         ]);
 
         $updates = session()->get('employee_updates', []);
@@ -141,28 +149,33 @@ class DashboardController extends Controller
     {
         return [
             [
-                'id' => 'm0', 'nom' => 'Dupont', 'prenom' => 'Jean', 'telephone' => '0001',
-                'service' => 'Technique', 'departement' => 'IT',
+                'id' => 'm0', 'nom' => 'Dupont', 'numero' => '0001',
+                'direction' => 'Technique', 'sous_direction' => 'Réseaux',
+                'departement' => 'IT', 'service' => 'Support', 'site' => 'Alger',
                 'service_color' => '#1d4ed8', 'service_bg' => '#eff6ff', 'service_border' => '#bfdbfe',
             ],
             [
-                'id' => 'm1', 'nom' => 'Leroy', 'prenom' => 'Alice', 'telephone' => '0002',
-                'service' => 'Ventes', 'departement' => 'Marketing',
+                'id' => 'm1', 'nom' => 'Leroy', 'numero' => '0002',
+                'direction' => 'Commerciale', 'sous_direction' => 'Ventes',
+                'departement' => 'Marketing', 'service' => 'Communication', 'site' => 'Oran',
                 'service_color' => '#15803d', 'service_bg' => '#f0fdf4', 'service_border' => '#bbf7d0',
             ],
             [
-                'id' => 'm2', 'nom' => 'Martin', 'prenom' => 'Sophie', 'telephone' => '0003',
-                'service' => 'Design', 'departement' => 'Produit',
+                'id' => 'm2', 'nom' => 'Martin', 'numero' => '0003',
+                'direction' => 'Production', 'sous_direction' => 'Studio',
+                'departement' => 'Audio', 'service' => 'Montage', 'site' => 'Alger',
                 'service_color' => '#7c3aed', 'service_bg' => '#f5f3ff', 'service_border' => '#ddd6fe',
             ],
             [
-                'id' => 'm3', 'nom' => 'Bernard', 'prenom' => 'Luc', 'telephone' => '0004',
-                'service' => 'Technique', 'departement' => 'Support',
+                'id' => 'm3', 'nom' => 'Bernard', 'numero' => '0004',
+                'direction' => 'Technique', 'sous_direction' => 'Maintenance',
+                'departement' => 'IT', 'service' => 'Réseaux', 'site' => 'Constantine',
                 'service_color' => '#1d4ed8', 'service_bg' => '#eff6ff', 'service_border' => '#bfdbfe',
             ],
             [
-                'id' => 'm4', 'nom' => 'Dubois', 'prenom' => 'Marc', 'telephone' => '0005',
-                'service' => 'Ventes', 'departement' => 'B2B',
+                'id' => 'm4', 'nom' => 'Dubois', 'numero' => '0005',
+                'direction' => 'Commerciale', 'sous_direction' => 'Marketing',
+                'departement' => 'Publicité', 'service' => 'Spots', 'site' => 'Annaba',
                 'service_color' => '#15803d', 'service_bg' => '#f0fdf4', 'service_border' => '#bbf7d0',
             ],
         ];

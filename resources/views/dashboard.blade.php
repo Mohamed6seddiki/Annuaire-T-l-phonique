@@ -143,10 +143,12 @@
                             class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface">
                             <option value="">Tous les types</option>
                             <option value="nom">Nom</option>
-                            <option value="prenom">Prénom</option>
-                            <option value="telephone">Téléphone</option>
-                            <option value="service">Service</option>
+                            <option value="numero">Numéro</option>
+                            <option value="direction">Direction</option>
+                            <option value="sous_direction">Sous-direction</option>
                             <option value="departement">Département</option>
+                            <option value="service">Service</option>
+                            <option value="site">Site</option>
                         </select>
                     </div>
 
@@ -165,50 +167,33 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-outline-variant">
-                                    <th
-                                        class="px-6 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Nom</th>
-                                    <th
-                                        class="px-6 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Prénom</th>
-                                    <th
-                                        class="px-6 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Téléphone</th>
-                                    <th
-                                        class="px-6 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Service</th>
-                                    <th
-                                        class="px-6 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Département</th>
-                                    <th
-                                        class="px-6 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider text-center">
-                                        Actions</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Nom</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Numéro</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Direction</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Sous-direction</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Département</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Service</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Site</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="table-body" class="divide-y divide-outline-variant">
                                 @forelse ($employees as $employee)
                                 <tr class="hover:bg-surface-container-low/50 transition-colors group">
-                                    <td class="px-6 py-4 font-medium text-on-surface">{{ $employee['nom'] }}</td>
-                                    <td class="px-6 py-4 text-secondary">{{ $employee['prenom'] }}</td>
-                                    <td class="px-6 py-4 text-secondary whitespace-nowrap">
-                                        <div class="flex items-center gap-2">
-                                            <span class="material-symbols-outlined text-outline text-lg"
-                                                data-icon="phone">phone</span>
-                                            <span>{{ $employee['telephone'] }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-4 py-4 font-medium text-on-surface">{{ $employee['nom'] }}</td>
+                                    <td class="px-4 py-4 text-secondary">{{ $employee['numero'] }}</td>
+                                    <td class="px-4 py-4 text-secondary">{{ $employee['direction'] }}</td>
+                                    <td class="px-4 py-4 text-secondary">{{ $employee['sous_direction'] }}</td>
+                                    <td class="px-4 py-4 text-secondary">{{ $employee['departement'] }}</td>
+                                    <td class="px-4 py-4">
                                         <span
                                             class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
                                             style="color: {{ $employee['service_color'] ?? '#1d4ed8' }}; background-color: {{ $employee['service_bg'] ?? '#eff6ff' }}; border-color: {{ $employee['service_border'] ?? '#bfdbfe' }};">
                                             {{ $employee['service'] }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-surface-container-high text-on-surface-variant">{{ $employee['departement'] }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    <td class="px-4 py-4 text-secondary">{{ $employee['site'] }}</td>
+                                    <td class="px-4 py-4 text-center whitespace-nowrap">
                                         <button onclick="editEmployee('{{ $employee['id'] }}')"
                                             class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                                             title="Modifier">
@@ -223,7 +208,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center text-secondary">
+                                    <td colspan="8" class="px-6 py-12 text-center text-secondary">
                                         <div class="flex flex-col items-center gap-3">
                                             <span class="material-symbols-outlined text-4xl text-outline"
                                                 data-icon="group_off">group_off</span>
@@ -307,7 +292,7 @@
                 <form id="employee-form" class="p-6 space-y-5">
                     @csrf
                     <input type="hidden" id="form-id" name="id" value="">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-nom">Nom</label>
                             <input id="form-nom" name="nom" required
@@ -315,31 +300,44 @@
                                 placeholder="Dupont">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-prenom">Prénom</label>
-                            <input id="form-prenom" name="prenom" required
+                            <label class="text-label-md font-medium text-secondary" for="form-numero">Numéro</label>
+                            <input id="form-numero" name="numero" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="Jean">
+                                placeholder="0001">
                         </div>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-label-md font-medium text-secondary" for="form-telephone">Téléphone</label>
-                        <input id="form-telephone" name="telephone" required
-                            class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                            placeholder="00 00 ">
+                        <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary" for="form-site">Site</label>
+                            <input id="form-site" name="site" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
+                                placeholder="Alger">
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-service">Service</label>
-                            <input id="form-service" name="service" required
+                            <label class="text-label-md font-medium text-secondary" for="form-direction">Direction</label>
+                            <input id="form-direction" name="direction" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
                                 placeholder="Technique">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary"
-                                for="form-departement">Département</label>
+                            <label class="text-label-md font-medium text-secondary" for="form-sous-direction">Sous-direction</label>
+                            <input id="form-sous-direction" name="sous_direction" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
+                                placeholder="Réseaux">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary" for="form-departement">Département</label>
                             <input id="form-departement" name="departement" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
                                 placeholder="IT">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary" for="form-service">Service</label>
+                            <input id="form-service" name="service" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
+                                placeholder="Support">
                         </div>
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-2">
@@ -357,6 +355,10 @@
             </div>
         </div>
     </div>
+
+    <script>
+        window._allEmployees = @json($allEmployees);
+    </script>
 
     <nav
         class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-outline-variant flex justify-around items-center py-3 px-2 z-50 shadow-2xl">
