@@ -1,47 +1,73 @@
 <x-guest-layout>
+
+    <!-- Logo + Titre -->
+    <div class="mb-6 flex flex-col items-center text-center">
+        <a href="/">
+            <img src="{{ asset('Radio-dz.png') }}" alt="Logo Radio Algérienne" class="w-20 h-auto mb-3">
+        </a>
+        <h2 class="text-lg font-bold text-[#2563eb]">Radio Algérienne</h2>
+        <p class="text-sm text-gray-500 mt-1">Annuaire des employés</p>
+    </div>
+
+    <!-- Séparateur -->
+    <div class="border-t border-gray-200 mb-6"></div>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email Address -->
+        <!-- Adresse e-mail -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-input-label for="email" :value="__('Adresse e-mail')" />
+            <div class="relative mt-1">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+
+                </span>
+                <x-text-input id="email" class="block w-full pl-9" type="email" name="email" :value="old('email')"
+                    required autofocus autocomplete="username" />
+            </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <!-- Password -->
+        <!-- Mot de passe -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            <x-input-label for="password" :value="__('Mot de passe')" />
+            <div class="relative mt-1">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
+                </span>
+                <x-text-input id="password" class="block w-full pl-9" type="password" name="password" required
+                    autocomplete="current-password" placeholder="••••••••" />
+            </div>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+        <!-- Mot de passe oublié -->
+        <div class="flex items-center justify-between mt-4">
 
-        <div class="flex items-center justify-end mt-4">
+
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
+            <a class="text-sm text-[#2563eb] hover:underline" href="{{ route('password.request') }}">
+                {{ __('Mot de passe oublié ?') }}
+            </a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <!-- Bouton Se connecter -->
+        <div class="mt-6">
+            <button type="submit"
+                class="w-full justify-center bg-primary-container text-on-primary-container px-4 py-2.5 rounded-lg font-medium shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm">
+                {{ __('Se connecter') }}
+            </button>
+        </div>
+
     </form>
+
+    <!-- Footer -->
+    <p class="text-center text-xs text-gray-400 mt-6">
+        © {{ date('Y') }} Radio Algérienne
+    </p>
+
 </x-guest-layout>
