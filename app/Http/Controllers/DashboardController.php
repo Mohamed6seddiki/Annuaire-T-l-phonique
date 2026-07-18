@@ -2,194 +2,150 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Standard;
+use App\Models\Direction;
+use App\Models\Sdirection;
+use App\Models\Departement;
+use App\Models\Site;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
-    {
-        $allEmployees = $this->allEmployees();
+{
+    $search = $request->get('search', '');
+    $type = $request->get('type', '');
 
-        $search = $request->get('search', '');
-        $type = $request->get('type', '');
+    $query = Standard::with(['direction', 'sdirection', 'departement', 'site']);
 
-        $filtered = collect($allEmployees);
-
-        if ($search) {
-            $searchable = ['nom', 'numero', 'direction', 'sous_direction', 'departement', 'service', 'site'];
-            if ($type && in_array($type, $searchable)) {
-                $filtered = $filtered->filter(fn($emp) => stripos($emp[$type] ?? '', $search) !== false);
-            } else {
-                $filtered = $filtered->filter(function ($emp) use ($search, $searchable) {
-                    foreach ($searchable as $field) {
-                        if (stripos($emp[$field] ?? '', $search) !== false) return true;
-                    }
-                    return false;
-                });
-            }
+    if ($search) {
+        $searchable = ['nom', 'numero', 'service'];
+        if ($type && in_array($type, $searchable)) {
+            $query->where($type, 'like', "%{$search}%");
+        } elseif ($type === 'direction') {
+            $query->whereHas('direction', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+        } elseif ($type === 'sous_direction') {
+            $query->whereHas('sdirection', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+        } elseif ($type === 'departement') {
+            $query->whereHas('departement', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+        } elseif ($type === 'site') {
+            $query->whereHas('site', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+        } else {
+            $query->where(function ($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                  ->orWhere('numero', 'like', "%{$search}%")
+                  ->orWhere('service', 'like', "%{$search}%")
+                  ->orWhereHas('direction', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
+                  ->orWhereHas('sdirection', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
+                  ->orWhereHas('departement', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
+                  ->orWhereHas('site', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+            });
         }
+    }
 
-        $perPage = 5;
-        $page = (int) $request->get('page', 1);
-        $total = $filtered->count();
-        $items = $filtered->forPage($page, $perPage)->values()->all();
+    $standards = $query->orderBy('nom')->paginate(5);
 
-        $employees = new LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
-
-        if ($request->ajax()) {
-            return response()->json([
-                'employees' => $employees->items(),
-                'pagination' => [
-                    'current_page' => $employees->currentPage(),
-                    'last_page' => $employees->lastPage(),
-                    'total' => $employees->total(),
-                    'count' => $employees->count(),
-                ],
-            ]);
-        }
-
-        return view('dashboard', [
-            'employees' => $employees,
-            'allEmployees' => $allEmployees,
+    if ($request->ajax()) {
+        return response()->json([
+            'employees' => $standards->map(fn($s) => $this->formatStandard($s)),
+            'pagination' => [
+                'current_page' => $standards->currentPage(),
+                'last_page' => $standards->lastPage(),
+                'total' => $standards->total(),
+                'count' => $standards->count(),
+            ],
         ]);
     }
+
+    
+    $formattedStandards = $standards->through(fn($s) => $this->formatStandard($s));
+
+    return view('dashboard', [
+        'employees' => $formattedStandards,  
+        'allEmployees' => Standard::with(['direction', 'sdirection', 'departement', 'site'])
+            ->orderBy('nom')->get()->map(fn($s) => $this->formatStandard($s))->toArray(),
+        'directions' => Direction::all(),
+        'sdirections' => Sdirection::all(),
+        'departements' => Departement::all(),
+        'sites' => Site::all(),
+    ]);
+}
 
     public function store(Request $request)
     {
         $data = $request->validate([
+            'numero' => 'required|string|max:255|unique:standards,numero',
             'nom' => 'required|string|max:255',
-            'numero' => 'required|string|max:50',
-            'direction' => 'required|string|max:255',
-            'sous_direction' => 'required|string|max:255',
-            'departement' => 'required|string|max:255',
-            'service' => 'required|string|max:255',
-            'site' => 'required|string|max:255',
+            'id_direction' => 'required|exists:directions,id',
+            'id_sdirection' => 'required|exists:sdirections,id',
+            'id_departement' => 'required|exists:departements,id',
+            'service' => 'nullable|string|max:255',
+            'id_site' => 'required|exists:sites,id',
+            'niveau' => 'nullable|string|max:255',
+            'type' => 'nullable|string|max:255',
         ]);
 
-        $palette = $this->servicePalette();
-        $employees = session()->get('employees', []);
-        $index = count($employees) % count($palette);
-
-        $data['id'] = 'emp_' . uniqid();
-        $data['service_color'] = $palette[$index]['color'];
-        $data['service_bg'] = $palette[$index]['bg'];
-        $data['service_border'] = $palette[$index]['border'];
-
-        $employees[] = $data;
-        session()->put('employees', $employees);
+        Standard::create($data);
 
         return response()->json(['success' => true]);
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, Standard $standard)
     {
         $data = $request->validate([
+            'numero' => 'required|string|max:255|unique:standards,numero,' . $standard->id,
             'nom' => 'required|string|max:255',
-            'numero' => 'required|string|max:50',
-            'direction' => 'required|string|max:255',
-            'sous_direction' => 'required|string|max:255',
-            'departement' => 'required|string|max:255',
-            'service' => 'required|string|max:255',
-            'site' => 'required|string|max:255',
+            'id_direction' => 'required|exists:directions,id',
+            'id_sdirection' => 'required|exists:sdirections,id',
+            'id_departement' => 'required|exists:departements,id',
+            'service' => 'nullable|string|max:255',
+            'id_site' => 'required|exists:sites,id',
+            'niveau' => 'nullable|string|max:255',
+            'type' => 'nullable|string|max:255',
         ]);
 
-        $updates = session()->get('employee_updates', []);
-        $updates[$id] = $data;
-        session()->put('employee_updates', $updates);
+        $standard->update($data);
 
         return response()->json(['success' => true]);
     }
 
-    public function destroy(string $id)
+    public function destroy(Standard $standard)
     {
-        $deleted = session()->get('employee_deletions', []);
-        $deleted[$id] = true;
-        session()->put('employee_deletions', $deleted);
+        $standard->delete();
 
         return response()->json(['success' => true]);
     }
 
-    private function allEmployees(): array
+    private function formatStandard($s): array
     {
-        $mock = $this->mockEmployees();
-        $session = session()->get('employees', []);
-        $updates = session()->get('employee_updates', []);
-        $deletions = session()->get('employee_deletions', []);
-
-        $session = array_map(function ($emp, $i) {
-            if (!isset($emp['id'])) {
-                $emp['id'] = 'legacy_' . $i;
-            }
-            return $emp;
-        }, $session, array_keys($session));
-
-        $all = array_merge($session, $mock);
-
-        $all = array_filter($all, fn($emp) => !isset($deletions[$emp['id'] ?? null]));
-
-        $all = array_map(function ($emp) use ($updates) {
-            $id = $emp['id'] ?? null;
-            if ($id && isset($updates[$id])) {
-                return array_merge($emp, $updates[$id]);
-            }
-            return $emp;
-        }, $all);
-
-        return array_values($all);
-    }
-
-    private function mockEmployees(): array
-    {
-        return [
-            [
-                'id' => 'm0', 'nom' => 'mohamed', 'numero' => '0001',
-                'direction' => 'Technique', 'sous_direction' => 'Réseaux',
-                'departement' => 'IT', 'service' => 'Support', 'site' => 'Alger',
-                'service_color' => '#1d4ed8', 'service_bg' => '#eff6ff', 'service_border' => '#bfdbfe',
-            ],
-            [
-                'id' => 'm1', 'nom' => 'younes', 'numero' => '0002',
-                'direction' => 'Commerciale', 'sous_direction' => 'Ventes',
-                'departement' => 'Marketing', 'service' => 'Communication', 'site' => 'Alger',
-                'service_color' => '#15803d', 'service_bg' => '#f0fdf4', 'service_border' => '#bbf7d0',
-            ],
-            [
-                'id' => 'm2', 'nom' => 'melissa', 'numero' => '0003',
-                'direction' => 'Production', 'sous_direction' => 'Studio',
-                'departement' => 'Audio', 'service' => 'Montage', 'site' => 'Alger',
-                'service_color' => '#7c3aed', 'service_bg' => '#f5f3ff', 'service_border' => '#ddd6fe',
-            ],
-            [
-                'id' => 'm3', 'nom' => 'younes', 'numero' => '0004',
-                'direction' => 'Technique', 'sous_direction' => 'Maintenance',
-                'departement' => 'IT', 'service' => 'Réseaux', 'site' => 'Alger',
-                'service_color' => '#1d4ed8', 'service_bg' => '#eff6ff', 'service_border' => '#bfdbfe',
-            ],
-            [
-                'id' => 'm4', 'nom' => 'seddiki', 'numero' => '0005',
-                'direction' => 'Commerciale', 'sous_direction' => 'Marketing',
-                'departement' => 'Publicité', 'service' => 'Spots', 'site' => 'Alger',
-                'service_color' => '#15803d', 'service_bg' => '#f0fdf4', 'service_border' => '#bbf7d0',
-            ],
-        ];
-    }
-
-    private function servicePalette(): array
-    {
-        return [
+        $palette = [
             ['color' => '#1d4ed8', 'bg' => '#eff6ff', 'border' => '#bfdbfe'],
             ['color' => '#15803d', 'bg' => '#f0fdf4', 'border' => '#bbf7d0'],
             ['color' => '#7c3aed', 'bg' => '#f5f3ff', 'border' => '#ddd6fe'],
             ['color' => '#b45309', 'bg' => '#fffbeb', 'border' => '#fde68a'],
             ['color' => '#be123c', 'bg' => '#fff1f2', 'border' => '#fecdd3'],
             ['color' => '#0f766e', 'bg' => '#f0fdfa', 'border' => '#ccfbf1'],
+        ];
+        $idx = crc32($s->service ?? $s->nom) % count($palette);
+
+        return [
+            'id' => $s->id,
+            'nom' => $s->nom,
+            'numero' => $s->numero,
+            'direction' => $s->direction?->libelle ?? '',
+            'direction_id' => $s->id_direction,
+            'sous_direction' => $s->sdirection?->libelle ?? '',
+            'sous_direction_id' => $s->id_sdirection,
+            'departement' => $s->departement?->libelle ?? '',
+            'departement_id' => $s->id_departement,
+            'service' => $s->service ?? '',
+            'site' => $s->site?->libelle ?? '',
+            'site_id' => $s->id_site,
+            'niveau' => $s->niveau ?? '',
+            'type' => $s->type ?? '',
+            'service_color' => $palette[$idx]['color'],
+            'service_bg' => $palette[$idx]['bg'],
+            'service_border' => $palette[$idx]['border'],
         ];
     }
 }

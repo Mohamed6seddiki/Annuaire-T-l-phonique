@@ -1,7 +1,12 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartementController;
+use App\Http\Controllers\DirectionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SdirectionController;
+use App\Http\Controllers\SiteController;
+use App\Http\Controllers\StandardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,11 +21,11 @@ Route::post('/employees', [DashboardController::class, 'store'])
     ->middleware(['auth', 'verified'])
     ->name('employees.store');
 
-Route::put('/employees/{employee}', [DashboardController::class, 'update'])
+Route::put('/employees/{standard}', [DashboardController::class, 'update'])
     ->middleware(['auth', 'verified'])
     ->name('employees.update');
 
-Route::delete('/employees/{employee}', [DashboardController::class, 'destroy'])
+Route::delete('/employees/{standard}', [DashboardController::class, 'destroy'])
     ->middleware(['auth', 'verified'])
     ->name('employees.destroy');
 
@@ -28,6 +33,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     //Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('standards', StandardController::class);
+    Route::resource('directions', DirectionController::class);
+    Route::resource('sdirections', SdirectionController::class);
+    Route::resource('departements', DepartementController::class);
+    Route::resource('sites', SiteController::class);
+
+    Route::prefix('referentiel')->name('referentiel.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ReferentielController::class, 'index'])->name('index');
+        Route::post('{type}', [\App\Http\Controllers\ReferentielController::class, 'store'])->name('store');
+        Route::put('{type}/{id}', [\App\Http\Controllers\ReferentielController::class, 'update'])->name('update');
+        Route::delete('{type}/{id}', [\App\Http\Controllers\ReferentielController::class, 'destroy'])->name('destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

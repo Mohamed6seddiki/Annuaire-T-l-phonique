@@ -44,16 +44,18 @@ document.addEventListener('keydown', (e) => {
 });
 
 window.editEmployee = function (id) {
-    const emp = window._allEmployees?.find(e => e.id === id);
+    const emp = window._allEmployees?.find(e => e.id == id);
     if (!emp) return;
 
     document.getElementById('form-nom').value = emp.nom;
     document.getElementById('form-numero').value = emp.numero;
-    document.getElementById('form-direction').value = emp.direction;
-    document.getElementById('form-sous-direction').value = emp.sous_direction;
-    document.getElementById('form-departement').value = emp.departement;
+    document.getElementById('form-id-direction').value = emp.direction_id;
+    document.getElementById('form-id-sdirection').value = emp.sous_direction_id;
+    document.getElementById('form-id-departement').value = emp.departement_id;
+    document.getElementById('form-id-site').value = emp.site_id;
     document.getElementById('form-service').value = emp.service;
-    document.getElementById('form-site').value = emp.site;
+    document.getElementById('form-niveau').value = emp.niveau;
+    document.getElementById('form-type').value = emp.type;
     formId.value = id;
 
     openModal("Modifier l'employé");

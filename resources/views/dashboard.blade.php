@@ -79,7 +79,12 @@
                 <a class="flex items-center gap-3 px-3 py-2 bg-primary-container text-on-primary-container font-medium rounded-lg transition-all"
                     href="{{ route('dashboard') }}">
                     <span class="material-symbols-outlined" data-icon="group">group</span>
-                    <span class="font-body-md">Employees</span>
+                    <span class="font-body-md">Employés</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all"
+                    href="{{ route('referentiel.index') }}">
+                    <span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+                    <span class="font-body-md">Référentiel</span>
                 </a>
                 <a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all"
                     href="{{ route('profile.edit') }}">
@@ -292,7 +297,7 @@
                 <form id="employee-form" class="p-6 space-y-5">
                     @csrf
                     <input type="hidden" id="form-id" name="id" value="">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-nom">Nom</label>
                             <input id="form-nom" name="nom" required
@@ -305,39 +310,69 @@
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
                                 placeholder="0001">
                         </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-site">Site</label>
-                            <input id="form-site" name="site" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="Alger">
+                            <label class="text-label-md font-medium text-secondary" for="form-id-direction">Direction</label>
+                            <select id="form-id-direction" name="id_direction" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                                <option value="">—</option>
+                                @foreach ($directions as $d)
+                                    <option value="{{ $d->id }}">{{ $d->libelle }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary" for="form-id-sdirection">Sous-direction</label>
+                            <select id="form-id-sdirection" name="id_sdirection" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                                <option value="">—</option>
+                                @foreach ($sdirections as $sd)
+                                    <option value="{{ $sd->id }}">{{ $sd->libelle }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-direction">Direction</label>
-                            <input id="form-direction" name="direction" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="Technique">
+                            <label class="text-label-md font-medium text-secondary" for="form-id-departement">Département</label>
+                            <select id="form-id-departement" name="id_departement" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                                <option value="">—</option>
+                                @foreach ($departements as $dep)
+                                    <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-sous-direction">Sous-direction</label>
-                            <input id="form-sous-direction" name="sous_direction" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="Réseaux">
+                            <label class="text-label-md font-medium text-secondary" for="form-id-site">Site</label>
+                            <select id="form-id-site" name="id_site" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                                <option value="">—</option>
+                                @foreach ($sites as $s)
+                                    <option value="{{ $s->id }}">{{ $s->libelle }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-departement">Département</label>
-                            <input id="form-departement" name="departement" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="IT">
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-service">Service</label>
-                            <input id="form-service" name="service" required
+                            <input id="form-service" name="service"
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
                                 placeholder="Support">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary" for="form-niveau">Niveau</label>
+                            <input id="form-niveau" name="niveau"
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
+                                placeholder="Cadre">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary" for="form-type">Type</label>
+                            <input id="form-type" name="type"
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
+                                placeholder="CDI">
                         </div>
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-2">
