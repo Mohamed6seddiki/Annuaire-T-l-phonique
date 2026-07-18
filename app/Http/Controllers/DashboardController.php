@@ -149,33 +149,33 @@ class DashboardController extends Controller
     {
         return [
             [
-                'id' => 'm0', 'nom' => 'Dupont', 'numero' => '0001',
+                'id' => 'm0', 'nom' => 'mohamed', 'numero' => '0001',
                 'direction' => 'Technique', 'sous_direction' => 'Réseaux',
                 'departement' => 'IT', 'service' => 'Support', 'site' => 'Alger',
                 'service_color' => '#1d4ed8', 'service_bg' => '#eff6ff', 'service_border' => '#bfdbfe',
             ],
             [
-                'id' => 'm1', 'nom' => 'Leroy', 'numero' => '0002',
+                'id' => 'm1', 'nom' => 'younes', 'numero' => '0002',
                 'direction' => 'Commerciale', 'sous_direction' => 'Ventes',
-                'departement' => 'Marketing', 'service' => 'Communication', 'site' => 'Oran',
+                'departement' => 'Marketing', 'service' => 'Communication', 'site' => 'Alger',
                 'service_color' => '#15803d', 'service_bg' => '#f0fdf4', 'service_border' => '#bbf7d0',
             ],
             [
-                'id' => 'm2', 'nom' => 'Martin', 'numero' => '0003',
+                'id' => 'm2', 'nom' => 'melissa', 'numero' => '0003',
                 'direction' => 'Production', 'sous_direction' => 'Studio',
                 'departement' => 'Audio', 'service' => 'Montage', 'site' => 'Alger',
                 'service_color' => '#7c3aed', 'service_bg' => '#f5f3ff', 'service_border' => '#ddd6fe',
             ],
             [
-                'id' => 'm3', 'nom' => 'Bernard', 'numero' => '0004',
+                'id' => 'm3', 'nom' => 'younes', 'numero' => '0004',
                 'direction' => 'Technique', 'sous_direction' => 'Maintenance',
-                'departement' => 'IT', 'service' => 'Réseaux', 'site' => 'Constantine',
+                'departement' => 'IT', 'service' => 'Réseaux', 'site' => 'Alger',
                 'service_color' => '#1d4ed8', 'service_bg' => '#eff6ff', 'service_border' => '#bfdbfe',
             ],
             [
-                'id' => 'm4', 'nom' => 'Dubois', 'numero' => '0005',
+                'id' => 'm4', 'nom' => 'seddiki', 'numero' => '0005',
                 'direction' => 'Commerciale', 'sous_direction' => 'Marketing',
-                'departement' => 'Publicité', 'service' => 'Spots', 'site' => 'Annaba',
+                'departement' => 'Publicité', 'service' => 'Spots', 'site' => 'Alger',
                 'service_color' => '#15803d', 'service_bg' => '#f0fdf4', 'service_border' => '#bbf7d0',
             ],
         ];
