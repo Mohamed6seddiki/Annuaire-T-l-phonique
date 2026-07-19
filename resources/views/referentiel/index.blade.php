@@ -110,11 +110,11 @@ $items_map = [
                 Liste des employés
                 <span class="text-sm font-normal text-gray-500 ml-1">({{ $standards->total() }})</span>
             </h2>
-            <a href="{{ route('standards.create') }}"
-               class="text-sm font-medium text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+            <button onclick="openAddEmployeeModal()"
+                    class="text-sm font-medium text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
                 <span class="material-symbols-outlined text-base">add</span>
                 Ajouter
-            </a>
+            </button>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -210,6 +210,7 @@ $items_map = [
 </div>
 
 <script>
+// Shared reference modal
 const refModal = document.getElementById('ref-modal');
 const refOverlay = document.getElementById('ref-modal-overlay');
 const refClose = document.getElementById('ref-modal-close');
@@ -241,13 +242,13 @@ function openEditModal(type, id, libelle, libelleArb) {
     refModal.classList.remove('hidden');
 }
 
-function closeModal() {
+function closeRefModal() {
     refModal.classList.add('hidden');
 }
 
-refOverlay.addEventListener('click', closeModal);
-refClose.addEventListener('click', closeModal);
-refCancel.addEventListener('click', closeModal);
+refOverlay.addEventListener('click', closeRefModal);
+refClose.addEventListener('click', closeRefModal);
+refCancel.addEventListener('click', closeRefModal);
 
 refForm.addEventListener('submit', function(e) {
     if (refMethodInput.value === 'PUT') {
@@ -256,6 +257,183 @@ refForm.addEventListener('submit', function(e) {
         input.name = '_method';
         input.value = 'PUT';
         this.appendChild(input);
+    }
+});
+</script>
+
+{{-- Employee modal --}}
+<div id="employee-modal" class="fixed inset-0 z-[60] hidden">
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" id="employee-modal-overlay"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-modal-in">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 id="employee-modal-title" class="text-lg font-semibold text-gray-900">Ajouter un employé</h2>
+                <button id="employee-modal-close"
+                        class="p-1 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="employee-form" class="p-6 space-y-5" action="{{ route('standards.store') }}" method="POST">
+                @csrf
+                <input type="hidden" id="employee-form-id" name="id" value="">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-nom">Nom</label>
+                        <input id="form-nom" name="nom" required
+                               class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                               placeholder="Dupont">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-numero">Numéro</label>
+                        <input id="form-numero" name="numero" required
+                               class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                               placeholder="0001">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-id-direction">Direction</label>
+                        <select id="form-id-direction" name="id_direction" required
+                                class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="">—</option>
+                            @foreach ($directions as $d)
+                                <option value="{{ $d->id }}">{{ $d->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-id-sdirection">Sous-direction</label>
+                        <select id="form-id-sdirection" name="id_sdirection" required
+                                class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="">—</option>
+                            @foreach ($sdirections as $sd)
+                                <option value="{{ $sd->id }}">{{ $sd->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-id-departement">Département</label>
+                        <select id="form-id-departement" name="id_departement" required
+                                class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="">—</option>
+                            @foreach ($departements as $dep)
+                                <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-id-site">Site</label>
+                        <select id="form-id-site" name="id_site" required
+                                class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="">—</option>
+                            @foreach ($sites as $s)
+                                <option value="{{ $s->id }}">{{ $s->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-service">Service</label>
+                        <input id="form-service" name="service"
+                               class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                               placeholder="Support">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-niveau">Niveau</label>
+                        <input id="form-niveau" name="niveau"
+                               class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                               placeholder="Cadre">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-type">Type</label>
+                        <input id="form-type" name="type"
+                               class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                               placeholder="CDI">
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" id="employee-modal-cancel"
+                            class="px-6 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        Annuler
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2.5 rounded-lg text-sm font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">add</span>
+                        <span>Ajouter</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Employee modal
+const empModal = document.getElementById('employee-modal');
+const empOverlay = document.getElementById('employee-modal-overlay');
+const empClose = document.getElementById('employee-modal-close');
+const empCancel = document.getElementById('employee-modal-cancel');
+const empForm = document.getElementById('employee-form');
+const empTitle = document.getElementById('employee-modal-title');
+const empStoreRoute = '{{ route('standards.store') }}';
+
+function openAddEmployeeModal() {
+    empTitle.textContent = 'Ajouter un employé';
+    empForm.reset();
+    document.getElementById('employee-form-id').value = '';
+    empModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeEmployeeModal() {
+    empModal.classList.add('hidden');
+    document.body.style.overflow = '';
+    empForm.reset();
+    document.getElementById('employee-form-id').value = '';
+}
+
+empOverlay.addEventListener('click', closeEmployeeModal);
+empClose.addEventListener('click', closeEmployeeModal);
+empCancel.addEventListener('click', closeEmployeeModal);
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (!empModal.classList.contains('hidden')) closeEmployeeModal();
+        else if (!refModal.classList.contains('hidden')) closeRefModal();
+    }
+});
+
+empForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(empForm);
+    const submitBtn = empForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">refresh</span>';
+
+    try {
+        const response = await fetch(empStoreRoute, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            alert(Object.values(err.errors || { message: 'Erreur' }).flat().join('\n'));
+            return;
+        }
+
+        closeEmployeeModal();
+        window.location.reload();
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="material-symbols-outlined text-lg">add</span><span>Ajouter</span>';
     }
 });
 </script>

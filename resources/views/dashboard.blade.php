@@ -81,11 +81,7 @@
                     <span class="material-symbols-outlined" data-icon="group">group</span>
                     <span class="font-body-md">Employés</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all"
-                    href="{{ route('referentiel.index') }}">
-                    <span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
-                    <span class="font-body-md">Référentiel</span>
-                </a>
+               
                 <a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all"
                     href="{{ route('profile.edit') }}">
                     <span class="material-symbols-outlined" data-icon="person">person</span>
@@ -172,14 +168,30 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-outline-variant">
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Nom</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Numéro</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Direction</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Sous-direction</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Département</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Service</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Site</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider text-center">Actions</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Nom</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Numéro</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Direction</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Sous-direction</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Département</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Service</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Site</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider text-center">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="table-body" class="divide-y divide-outline-variant">
@@ -230,8 +242,8 @@
                     <div id="pagination-container"
                         class="px-6 py-5 bg-surface-container-lowest border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="text-body-sm text-secondary">
-                            Affichage de <span class="font-semibold text-on-surface">{{ $employees->count() }}</span>
-                            sur <span class="font-semibold text-on-surface">{{ $employees->total() }}</span> employés
+                             <span class="font-semibold text-on-surface</span>
+                             <span class="font-semibold text-on-surface"></span> 
                         </div>
                         <nav class="flex items-center gap-1">
                             @if ($employees->onFirstPage())
@@ -276,6 +288,38 @@
                             @endif
                         </nav>
                     </div>
+
+                    <div id="pagination-container"
+                        class="px-6 py-5 bg-surface-container-lowest border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-4">
+
+                        {{-- LEFT: Print & Download buttons --}}
+                        <div class="flex items-center gap-3">
+                            <button onclick="printEmployees()"
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-outline-variant text-secondary hover:bg-surface-container-high transition-colors">
+                                <span class="material-symbols-outlined text-lg">print</span>
+                                Imprimer la liste
+                            </button>
+                            <button onclick="exportEmployees()"
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm">
+                                <span class="material-symbols-outlined text-lg">download</span>
+                                Télécharger
+                            </button>
+                        </div>
+
+                        {{-- RIGHT: Page count + pagination nav --}}
+                        <div class="flex flex-col sm:flex-row items-center gap-4">
+                            <div class="text-body-sm text-secondary">
+                                Affichage de <span
+                                    class="font-semibold text-on-surface">{{ $employees->count() }}</span>
+                                sur <span class="font-semibold text-on-surface">{{ $employees->total() }}</span>
+                                employés
+                            </div>
+                            <nav class="flex items-center gap-1">
+                                {{-- pagination buttons stay exactly the same --}}
+                            </nav>
+                        </div>
+                    </div>
+
                 </div>
             </section>
         </main>
@@ -313,34 +357,37 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-id-direction">Direction</label>
+                            <label class="text-label-md font-medium text-secondary"
+                                for="form-id-direction">Direction</label>
                             <select id="form-id-direction" name="id_direction" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
                                 @foreach ($directions as $d)
-                                    <option value="{{ $d->id }}">{{ $d->libelle }}</option>
+                                <option value="{{ $d->id }}">{{ $d->libelle }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-id-sdirection">Sous-direction</label>
+                            <label class="text-label-md font-medium text-secondary"
+                                for="form-id-sdirection">Sous-direction</label>
                             <select id="form-id-sdirection" name="id_sdirection" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
                                 @foreach ($sdirections as $sd)
-                                    <option value="{{ $sd->id }}">{{ $sd->libelle }}</option>
+                                <option value="{{ $sd->id }}">{{ $sd->libelle }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-id-departement">Département</label>
+                            <label class="text-label-md font-medium text-secondary"
+                                for="form-id-departement">Département</label>
                             <select id="form-id-departement" name="id_departement" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
                                 @foreach ($departements as $dep)
-                                    <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
+                                <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -350,7 +397,7 @@
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
                                 @foreach ($sites as $s)
-                                    <option value="{{ $s->id }}">{{ $s->libelle }}</option>
+                                <option value="{{ $s->id }}">{{ $s->libelle }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -392,7 +439,7 @@
     </div>
 
     <script>
-        window._allEmployees = @json($allEmployees);
+    window._allEmployees = @json($allEmployees);
     </script>
 
     <nav

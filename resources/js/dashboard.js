@@ -1,3 +1,5 @@
+import { jsPDF } from 'jspdf';
+
 const searchInput = document.getElementById('search');
 const typeSelect = document.getElementById('type');
 const searchBtn = document.getElementById('search-btn');
@@ -93,7 +95,7 @@ employeeForm.addEventListener('submit', async (e) => {
 
     try {
         let url, method;
-        if (isEdit) {
+        if (isEdit) {0
             url = `${employeesBaseUrl}/${formId.value}`;
             method = 'POST';
             formData.append('_method', 'PUT');
@@ -244,3 +246,103 @@ typeSelect.addEventListener('change', () => fetchEmployees(1));
 
 searchInput.addEventListener('focus', () => searchInput.parentElement.classList.add('scale-[1.01]'));
 searchInput.addEventListener('blur', () => searchInput.parentElement.classList.remove('scale-[1.01]'));
+
+window.printEmployees = function () {
+    const employees = window._allEmployees;
+    if (!employees || employees.length === 0) return;
+
+    const html = `
+        <html><head><title>Liste des employés</title>
+        <style>
+            body { font-family: Inter, sans-serif; padding: 24px; color: #0f172a; }
+            h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+            p { font-size: 12px; color: #64748b; margin-bottom: 16px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th { background: #f1f5f9; padding: 8px 12px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #475569; }
+            td { padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; }
+            tr:nth-child(even) td { background: #f8fafc; }
+        </style></head><body>
+        <h1>Liste des employés — Radio Algérienne</h1>
+        <p>Total : ${employees.length} employés</p>
+        <table>
+            <thead><tr>
+                <th>Nom</th><th>Numéro</th><th>Direction</th>
+                <th>Sous-direction</th><th>Département</th><th>Service</th><th>Site</th>
+            </tr></thead>
+            <tbody>
+                ${employees.map(e => `<tr>
+                    <td>${e.nom ?? ''}</td>
+                    <td>${e.numero ?? ''}</td>
+                    <td>${e.direction ?? ''}</td>
+                    <td>${e.sous_direction ?? ''}</td>
+                    <td>${e.departement ?? ''}</td>
+                    <td>${e.service ?? ''}</td>
+                    <td>${e.site ?? ''}</td>
+                </tr>`).join('')}
+            </tbody>
+        </table>
+        </body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+};
+
+window.exportEmployees = function () {
+    const employees = window._allEmployees;
+    if (!employees || employees.length === 0) return;
+
+    const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
+    const margin = 10;
+    const rowH = 7;
+    const cols = [
+        { title: 'Nom', width: 40 },
+        { title: 'Numéro', width: 20 },
+        { title: 'Direction', width: 35 },
+        { title: 'Sous-direction', width: 35 },
+        { title: 'Département', width: 35 },
+        { title: 'Service', width: 30 },
+        { title: 'Site', width: 30 },
+    ];
+    const totalW = cols.reduce((s, c) => s + c.width, 0);
+
+    let y = margin + 5;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Liste des employés — Radio Algérienne', margin, y);
+    y += 6;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total : ${employees.length} employés`, margin, y);
+    y += 8;
+
+    function cellX(ci) {
+        return margin + cols.slice(0, ci).reduce((s, c) => s + c.width, 0);
+    }
+
+    function drawCell(x, w, yp, text, fill, bold) {
+        if (fill) doc.setFillColor(fill[0], fill[1], fill[2]);
+        doc.rect(x, yp, w, rowH, fill ? 'FD' : 'D');
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(bold ? 71 : 51, bold ? 85 : 65, bold ? 105 : 85);
+        doc.text(String(text ?? ''), x + 1, yp + rowH - 2);
+    }
+
+    // Header
+    cols.forEach((c, ci) => drawCell(cellX(ci), c.width, y, c.title, [241, 245, 249], true));
+
+    // Rows
+    employees.forEach((e, i) => {
+        const ry = y + rowH + i * rowH;
+        const vals = [e.nom, e.numero, e.direction, e.sous_direction, e.departement, e.service, e.site];
+        const fill = i % 2 === 0 ? [248, 250, 252] : null;
+        cols.forEach((c, ci) => drawCell(cellX(ci), c.width, ry, vals[ci], fill, false));
+    });
+
+    doc.save(`employes_radio_algerienne_${new Date().toISOString().slice(0,10)}.pdf`);
+};
+
+

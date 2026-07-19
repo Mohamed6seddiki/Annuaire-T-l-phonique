@@ -46,6 +46,10 @@ class StandardController extends Controller
 
         Standard::create($data);
 
+        if ($request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
         return redirect()->route('referentiel.index')
             ->with('success', 'Employé créé avec succès.');
     }
