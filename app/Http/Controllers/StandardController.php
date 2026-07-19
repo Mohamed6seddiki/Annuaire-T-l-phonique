@@ -46,7 +46,7 @@ class StandardController extends Controller
 
         Standard::create($data);
 
-        return redirect()->route('standards.index')
+        return redirect()->route('referentiel.index')
             ->with('success', 'Employé créé avec succès.');
     }
 
@@ -83,7 +83,7 @@ class StandardController extends Controller
 
         $standard->update($data);
 
-        return redirect()->route('standards.index')
+        return redirect()->route('referentiel.index')
             ->with('success', 'Employé mis à jour avec succès.');
     }
 
@@ -91,7 +91,7 @@ class StandardController extends Controller
     {
         $standard->delete();
 
-        return redirect()->route('standards.index')
+        return redirect()->route('referentiel.index')
             ->with('success', 'Employé supprimé avec succès.');
     }
 }
