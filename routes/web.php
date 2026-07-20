@@ -33,10 +33,11 @@ Route::delete('/employees/{standard}', [DashboardController::class, 'destroy'])
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    //Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::middleware('admin')->group(function () {
+        Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    });
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -45,8 +46,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('sdirections', SdirectionController::class);
     Route::resource('departements', DepartementController::class);
     Route::resource('sites', SiteController::class);
+});
 
-    /*
+
+ /*
     Route::prefix('referentiel')->name('referentiel.')->group(function () {
         Route::get('/', [\App\Http\Controllers\ReferentielController::class, 'index'])->name('index');
         Route::post('{type}', [\App\Http\Controllers\ReferentielController::class, 'store'])->name('store');
@@ -54,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('{type}/{id}', [\App\Http\Controllers\ReferentielController::class, 'destroy'])->name('destroy');
     });
     */
-});
+
+
 
 require __DIR__.'/auth.php';

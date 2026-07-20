@@ -9,6 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
+
+    <script>
+    window.isAdmin = @json(auth()->user()->can('admin'));
+    </script>
+    
     @vite(['resources/css/app.css', 'resources/js/dashboard.js'])
 
     <style>
@@ -83,12 +88,14 @@
                     <span class="font-body-md">Employés</span>
                 </a>
 
+                @can('admin')
                 <a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all"
                     href="{{ route('users.create') }}">
                     <span class="material-symbols-outlined" data-icon="person_add">person_add</span>
                     <span class="font-body-md">Créer utilisateur</span>
                 </a>
-               
+                @endcan
+
                 <a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all"
                     href="{{ route('profile.edit') }}">
                     <span class="material-symbols-outlined" data-icon="person">person</span>
@@ -116,22 +123,22 @@
                         <button class="lg:hidden p-2 text-secondary">
                             <span class="material-symbols-outlined" data-icon="menu">menu</span>
                         </button>
-                        <h1 class="hidden md:block font-h2 text-h2 font-semibold text-on-surface">annuaire telephonique
-                        </h1>
+                        <h1 class="hidden md:block font-h2 text-h2 font-semibold text-on-surface">annuaire telephonique</h1>
                         <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">annuaire telephonique</h1>
                     </div>
+                    @can('admin')
                     <div class="flex items-center gap-md">
                         <button id="add-employee-btn"
                             class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm">
                             Ajouter un employé
                         </button>
                     </div>
+                    @endcan
                 </div>
             </header>
 
             <section class="max-w-container-max mx-auto w-full px-lg py-xl">
-                {{-- Search Bar --}}
-                <div
+                <form id="search-form" method="GET" action="{{ route('dashboard') }}"
                     class="flex flex-col md:flex-row gap-4 items-end bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
                     <div class="flex-1 w-full space-y-2">
                         <label class="text-label-md text-secondary ml-1" for="search">Recherche globale</label>
@@ -141,71 +148,57 @@
                                 data-icon="search">search</span>
                             <input
                                 class="w-full pl-10 pr-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                id="search" placeholder="Rechercher un employé..." type="text">
+                                id="search" name="search" value="{{ request('search') }}" placeholder="Rechercher un employé..." type="text">
                         </div>
                     </div>
 
                     <div class="w-full flex-1 space-y-2">
                         <label class="text-label-md text-secondary ml-1" for="type">Type</label>
                         <select id="type"
+                            name="type"
                             class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface">
-                            <option value="">Tous les types</option>
-                            <option value="numero">Numéro</option>
-                            <option value="nom">Nom</option>
-                            <option value="direction">Direction</option>
-                            <option value="sous_direction">Sous-direction</option>
-                            <option value="departement">Département</option>
-                            <option value="service">Service</option>
-                            <option value="site">Site</option>
+                            <option value="" @selected(request('type') === '')>Tous les types</option>
+                            <option value="numero" @selected(request('type') === 'numero')>Numéro</option>
+                            <option value="nom" @selected(request('type') === 'nom')>Nom</option>
+                            <option value="direction" @selected(request('type') === 'direction')>Direction</option>
+                            <option value="sous_direction" @selected(request('type') === 'sous_direction')>Sous-direction</option>
+                            <option value="departement" @selected(request('type') === 'departement')>Département</option>
+                            <option value="service" @selected(request('type') === 'service')>Service</option>
+                            <option value="site" @selected(request('type') === 'site')>Site</option>
                         </select>
                     </div>
 
                     <div class="w-full md:w-auto">
-                        <button id="search-btn"
+                        <button id="search-btn" type="submit"
                             class="w-full md:w-auto bg-[#2563eb] text-white px-8 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2">
                             <span>Rechercher</span>
                         </button>
                     </div>
-                </div>
+                </form>
 
-                {{-- Table --}}
                 <div id="table-container"
                     class="mt-lg bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-outline-variant">
-                                    <th
-                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Nom</th>
-                                    <th
-                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Numéro</th>
-                                    <th
-                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Direction</th>
-                                    <th
-                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Sous-direction</th>
-                                    <th
-                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Département</th>
-                                    <th
-                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Service</th>
-                                    <th
-                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
-                                        Site</th>
-                                    <th
-                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider text-center">
-                                        Actions</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Numéro</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Nom</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Direction</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Sous-direction</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Département</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Service</th>
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Site</th>
+                                    @can('admin')
+                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider text-center">Actions</th>
+                                    @endcan
                                 </tr>
                             </thead>
                             <tbody id="table-body" class="divide-y divide-outline-variant">
                                 @forelse ($employees as $employee)
                                 <tr class="hover:bg-surface-container-low/50 transition-colors group">
-                                    <td class="px-4 py-4 font-medium text-on-surface">{{ $employee['nom'] }}</td>
-                                    <td class="px-4 py-4 text-secondary">{{ $employee['numero'] }}</td>
+                                    <td class="px-4 py-4 font-medium text-on-surface">{{ $employee['numero'] }}</td>
+                                    <td class="px-4 py-4  text-secondary">{{ $employee['nom'] }}</td>
                                     <td class="px-4 py-4 text-secondary">{{ $employee['direction'] }}</td>
                                     <td class="px-4 py-4 text-secondary">{{ $employee['sous_direction'] }}</td>
                                     <td class="px-4 py-4 text-secondary">{{ $employee['departement'] }}</td>
@@ -217,6 +210,7 @@
                                         </span>
                                     </td>
                                     <td class="px-4 py-4 text-secondary">{{ $employee['site'] }}</td>
+                                    @can('admin')
                                     <td class="px-4 py-4 text-center whitespace-nowrap">
                                         <button onclick="editEmployee('{{ $employee['id'] }}')"
                                             class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
@@ -229,10 +223,11 @@
                                             <span class="material-symbols-outlined text-lg">delete</span>
                                         </button>
                                     </td>
+                                    @endcan
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="px-6 py-12 text-center text-secondary">
+                                    <td colspan="{{ auth()->user()->can('admin') ? 8 : 7 }}" class="px-6 py-12 text-center text-secondary">
                                         <div class="flex flex-col items-center gap-3">
                                             <span class="material-symbols-outlined text-4xl text-outline"
                                                 data-icon="group_off">group_off</span>
@@ -246,22 +241,19 @@
                     </div>
 
                     <div class="px-6 py-5 bg-surface-container-lowest border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-4">
-
-                        {{-- LEFT: Print & Download buttons --}}
                         <div class="flex items-center gap-3">
-                            <button onclick="printEmployees()"
+                            <button id="print-employees-btn" type="button"
                                 class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-outline-variant text-secondary hover:bg-surface-container-high transition-colors">
                                 <span class="material-symbols-outlined text-lg">print</span>
                                 Imprimer la liste
                             </button>
-                            <button onclick="exportEmployees()"
+                            <button id="export-employees-btn" type="button" onclick="exportEmployees()"
                                 class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm">
                                 <span class="material-symbols-outlined text-lg">download</span>
                                 Télécharger
                             </button>
                         </div>
 
-                        {{-- RIGHT: Page count --}}
                         <div id="pagination-container" class="flex items-center gap-4">
                             <div class="text-body-sm text-secondary" id="page-info">
                                 Affichage de <span class="font-semibold text-on-surface">{{ $employees->count() }}</span>
@@ -295,9 +287,7 @@
                                 </button>
                             </nav>
                         </div>
-
                     </div>
-
                 </div>
             </section>
         </main>
@@ -321,22 +311,21 @@
                     <input type="hidden" id="form-id" name="id" value="">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-nom">Nom</label>
-                            <input id="form-nom" name="nom" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="Dupont">
-                        </div>
-                        <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-numero">Numéro</label>
                             <input id="form-numero" name="numero" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
                                 placeholder="0001">
                         </div>
+                        <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary" for="form-nom">Nom</label>
+                            <input id="form-nom" name="nom" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
+                                placeholder="Dupont">
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary"
-                                for="form-id-direction">Direction</label>
+                            <label class="text-label-md font-medium text-secondary" for="form-id-direction">Direction</label>
                             <select id="form-id-direction" name="id_direction" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
@@ -346,8 +335,7 @@
                             </select>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary"
-                                for="form-id-sdirection">Sous-direction</label>
+                            <label class="text-label-md font-medium text-secondary" for="form-id-sdirection">Sous-direction</label>
                             <select id="form-id-sdirection" name="id_sdirection" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
@@ -359,8 +347,7 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary"
-                                for="form-id-departement">Département</label>
+                            <label class="text-label-md font-medium text-secondary" for="form-id-departement">Département</label>
                             <select id="form-id-departement" name="id_departement" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
@@ -423,17 +410,17 @@
     window._allEmployees = @json($allEmployees);
     </script>
 
-    <nav
-        class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-outline-variant flex justify-around items-center py-3 px-2 z-50 shadow-2xl">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-outline-variant flex justify-around items-center py-3 px-2 z-50 shadow-2xl">
         <a class="flex flex-col items-center text-primary" href="{{ route('dashboard') }}">
-            <span class="material-symbols-outlined" data-icon="group"
-                style="font-variation-settings: 'FILL' 1;">group</span>
+            <span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
             <span class="text-[10px] mt-1 font-medium">Employés</span>
         </a>
+        @can('admin')
         <a class="flex flex-col items-center text-secondary" href="{{ route('users.create') }}">
             <span class="material-symbols-outlined" data-icon="person_add">person_add</span>
             <span class="text-[10px] mt-1 font-medium">Utilisateur</span>
         </a>
+        @endcan
         <a class="flex flex-col items-center text-secondary" href="#">
             <span class="material-symbols-outlined" data-icon="search">search</span>
             <span class="text-[10px] mt-1 font-medium">Recherche</span>
@@ -446,8 +433,7 @@
             <span class="material-symbols-outlined" data-icon="person">person</span>
             <span class="text-[10px] mt-1 font-medium">Profil</span>
         </a>
-    </nav>  
-
+    </nav>
 
 </body>
 

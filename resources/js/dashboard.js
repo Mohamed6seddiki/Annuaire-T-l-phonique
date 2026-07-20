@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 
 const searchInput = document.getElementById('search');
 const typeSelect = document.getElementById('type');
+const searchForm = document.getElementById('search-form');
 const searchBtn = document.getElementById('search-btn');
 const tableBody = document.getElementById('table-body');
 const tableContainer = document.getElementById('table-container');
@@ -14,10 +15,15 @@ const modalCancelBtn = document.getElementById('modal-cancel-btn');
 const addEmployeeBtn = document.getElementById('add-employee-btn');
 const employeeForm = document.getElementById('employee-form');
 const formId = document.getElementById('form-id');
+const printEmployeesBtn = document.getElementById('print-employees-btn');
+const exportEmployeesBtn = document.getElementById('export-employees-btn');
 
 const dashboardRoute = document.body.dataset.dashboardRoute;
 const employeesStoreRoute = document.body.dataset.employeesStoreRoute;
 const employeesBaseUrl = document.body.dataset.employeesBaseUrl;
+
+window._allEmployees = window._allEmployees || [];
+window._currentEmployees = window._currentEmployees || [];
 
 let currentPage = 1;
 let debounceTimer;
@@ -35,7 +41,9 @@ function closeModal() {
     formId.value = '';
 }
 
-addEmployeeBtn.addEventListener('click', () => openModal('Ajouter un employé'));
+if (addEmployeeBtn) {
+    addEmployeeBtn.addEventListener('click', () => openModal('Ajouter un employé'));
+}
 modalOverlay.addEventListener('click', closeModal);
 modalCloseBtn.addEventListener('click', closeModal);
 modalCancelBtn.addEventListener('click', closeModal);
@@ -45,7 +53,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 window.editEmployee = function (id) {
-    const emp = window._allEmployees?.find(e => e.id == id);
+    const emp = window._currentEmployees?.find(e => e.id == id) || window._allEmployees?.find(e => e.id == id);
     if (!emp) return;
 
     document.getElementById('form-nom').value = emp.nom;
@@ -169,7 +177,6 @@ async function fetchEmployees(page = 1) {
         });
 
         const data = await response.json();
-        window._allEmployees = data.employees;
         renderTable(data.employees);
         renderPagination(data.pagination);
     } catch (error) {
@@ -182,47 +189,66 @@ async function fetchEmployees(page = 1) {
 window.fetchEmployees = fetchEmployees;
 
 function renderTable(employees) {
-    window._allEmployees = employees;
+    window._currentEmployees = employees;
 
     if (employees.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="8" class="px-6 py-12 text-center text-secondary">
+                <td colspan="${window.isAdmin ? 8 : 7}" class="px-6 py-12 text-center text-secondary">
                     <div class="flex flex-col items-center gap-3">
                         <span class="material-symbols-outlined text-4xl text-outline">group_off</span>
                         <p class="text-body-md">Aucun employé trouvé</p>
                     </div>
                 </td>
-            </tr>`;
+            </tr>
+        `;
         return;
     }
 
-    tableBody.innerHTML = employees.map(emp => `
-        <tr class="hover:bg-surface-container-low/50 transition-colors group">
-            <td class="px-4 py-4 font-medium text-on-surface">${emp.nom}</td>
-            <td class="px-4 py-4 text-secondary">${emp.numero}</td>
-            <td class="px-4 py-4 text-secondary">${emp.direction}</td>
-            <td class="px-4 py-4 text-secondary">${emp.sous_direction}</td>
-            <td class="px-4 py-4 text-secondary">${emp.departement}</td>
-            <td class="px-4 py-4">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
-                    style="color:${emp.service_color ?? '#1d4ed8'}; background-color:${emp.service_bg ?? '#eff6ff'}; border-color:${emp.service_border ?? '#bfdbfe'};">
-                    ${emp.service}
-                </span>
-            </td>
-            <td class="px-4 py-4 text-secondary">${emp.site}</td>
+    tableBody.innerHTML = employees.map(emp => {
+
+        const actions = window.isAdmin ? `
             <td class="px-4 py-4 text-center whitespace-nowrap">
                 <button onclick="editEmployee('${emp.id}')"
-                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Modifier">
+                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                    title="Modifier">
                     <span class="material-symbols-outlined text-lg">edit</span>
                 </button>
+
                 <button onclick="deleteEmployee('${emp.id}')"
-                    class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Supprimer">
+                    class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    title="Supprimer">
                     <span class="material-symbols-outlined text-lg">delete</span>
                 </button>
             </td>
-        </tr>
-    `).join('');
+        ` : '';
+
+        return `
+            <tr class="hover:bg-surface-container-low/50 transition-colors group">
+                <td class="px-4 py-4 text-secondary">${emp.numero}</td>
+                <td class="px-4 py-4 font-medium text-on-surface">${emp.nom}</td>
+                <td class="px-4 py-4 text-secondary">${emp.direction}</td>
+                <td class="px-4 py-4 text-secondary">${emp.sous_direction}</td>
+                <td class="px-4 py-4 text-secondary">${emp.departement}</td>
+
+                <td class="px-4 py-4">
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
+                        style="
+                            color:${emp.service_color ?? '#1d4ed8'};
+                            background-color:${emp.service_bg ?? '#eff6ff'};
+                            border-color:${emp.service_border ?? '#bfdbfe'};
+                        ">
+                        ${emp.service}
+                    </span>
+                </td>
+
+                <td class="px-4 py-4 text-secondary">${emp.site}</td>
+
+                ${actions}
+            </tr>
+        `;
+    }).join('');
 }
 
 function renderPagination(p) {
@@ -258,11 +284,14 @@ function renderPagination(p) {
     }
 }
 
-searchBtn.addEventListener('click', () => fetchEmployees(1));
+searchForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    fetchEmployees(1);
+});
 
 searchInput.addEventListener('keyup', (e) => {
     if (e.key === 'Enter') {
-        fetchEmployees(1);
+        return;
     } else {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => fetchEmployees(1), 500);
@@ -275,10 +304,13 @@ searchInput.addEventListener('focus', () => searchInput.parentElement.classList.
 searchInput.addEventListener('blur', () => searchInput.parentElement.classList.remove('scale-[1.01]'));
 
 window.printEmployees = function () {
-    const employees = window._allEmployees;
+    const employees = window._allEmployees?.length
+        ? window._allEmployees
+        : window._currentEmployees;
     if (!employees || employees.length === 0) return;
 
     const html = `
+        <!DOCTYPE html>
         <html><head><title>Liste des employés</title>
         <style>
             body { font-family: Inter, sans-serif; padding: 24px; color: #0f172a; }
@@ -288,18 +320,20 @@ window.printEmployees = function () {
             th { background: #f1f5f9; padding: 8px 12px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #475569; }
             td { padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; }
             tr:nth-child(even) td { background: #f8fafc; }
-        </style></head><body>
+            @media print { body { padding: 0; } }
+        </style></head>
+        <body>
         <h1>Liste des employés — Radio Algérienne</h1>
         <p>Total : ${employees.length} employés</p>
         <table>
             <thead><tr>
-                <th>Nom</th><th>Numéro</th><th>Direction</th>
+                <th>Numéro</th><th>Nom</th><th>Direction</th>
                 <th>Sous-direction</th><th>Département</th><th>Service</th><th>Site</th>
             </tr></thead>
             <tbody>
                 ${employees.map(e => `<tr>
-                    <td>${e.nom ?? ''}</td>
                     <td>${e.numero ?? ''}</td>
+                    <td>${e.nom ?? ''}</td>
                     <td>${e.direction ?? ''}</td>
                     <td>${e.sous_direction ?? ''}</td>
                     <td>${e.departement ?? ''}</td>
@@ -308,33 +342,40 @@ window.printEmployees = function () {
                 </tr>`).join('')}
             </tbody>
         </table>
+        <script>
+            window.onload = function () {
+                window.print();
+                setTimeout(function () { window.close(); }, 500);
+            };
+        <\/script>
         </body></html>`;
 
-    const win = window.open('', '_blank');
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    win.print();
+    const printWindow = window.open('', '_blank', 'width=900,height=600');
+    if (!printWindow) {
+        alert("Veuillez autoriser les fenêtres pop-up pour ce site, puis réessayez.");
+        return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
 };
 
 window.exportEmployees = function () {
-    const employees = window._allEmployees;
+    const employees = window._allEmployees?.length ? window._allEmployees : window._currentEmployees;
     if (!employees || employees.length === 0) return;
 
     const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
     const margin = 10;
     const rowH = 7;
     const cols = [
-        { title: 'Nom', width: 40 },
         { title: 'Numéro', width: 20 },
+        { title: 'Nom', width: 40 },
         { title: 'Direction', width: 35 },
         { title: 'Sous-direction', width: 35 },
         { title: 'Département', width: 35 },
         { title: 'Service', width: 30 },
         { title: 'Site', width: 30 },
     ];
-    const totalW = cols.reduce((s, c) => s + c.width, 0);
-
     let y = margin + 5;
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -364,12 +405,20 @@ window.exportEmployees = function () {
     // Rows
     employees.forEach((e, i) => {
         const ry = y + rowH + i * rowH;
-        const vals = [e.nom, e.numero, e.direction, e.sous_direction, e.departement, e.service, e.site];
+        const vals = [e.numero, e.nom, e.direction, e.sous_direction, e.departement, e.service, e.site];
         const fill = i % 2 === 0 ? [248, 250, 252] : null;
         cols.forEach((c, ci) => drawCell(cellX(ci), c.width, ry, vals[ci], fill, false));
     });
 
     doc.save(`employes_radio_algerienne_${new Date().toISOString().slice(0,10)}.pdf`);
 };
+
+if (printEmployeesBtn) {
+    printEmployeesBtn.addEventListener('click', window.printEmployees);
+}
+
+if (exportEmployeesBtn) {
+    exportEmployeesBtn.addEventListener('click', window.exportEmployees);
+}
 
 
