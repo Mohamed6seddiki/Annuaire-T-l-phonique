@@ -6,7 +6,7 @@
             <img src="{{ asset('Radio-dz.png') }}" alt="Logo Radio Algérienne" class="w-20 h-auto mb-3">
         </a>
         <h2 class="text-lg font-bold text-[#2563eb]">Radio Algérienne</h2>
-        <p class="text-sm text-gray-500 mt-1">Annuaire des employés</p>
+        <p class="text-sm text-gray-500 mt-1">annuaire telephonique</p>
     </div>
 
     <!-- Séparateur -->

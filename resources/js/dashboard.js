@@ -1,12 +1,11 @@
 import { jsPDF } from 'jspdf';
+import Swal from 'sweetalert2';
 
 const searchInput = document.getElementById('search');
 const typeSelect = document.getElementById('type');
 const searchBtn = document.getElementById('search-btn');
 const tableBody = document.getElementById('table-body');
 const tableContainer = document.getElementById('table-container');
-const paginationContainer = document.getElementById('pagination-container');
-
 const modal = document.getElementById('employee-modal');
 const modalTitle = document.getElementById('modal-title');
 const modalOverlay = document.getElementById('modal-overlay');
@@ -64,7 +63,19 @@ window.editEmployee = function (id) {
 };
 
 window.deleteEmployee = async function (id) {
-    if (!confirm('Supprimer cet employé ?')) return;
+
+    const result = await Swal.fire({
+        title: 'Supprimer cet employé ?',
+        text: "Cette action est irréversible !",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
         const response = await fetch(`${employeesBaseUrl}/${id}`, {
@@ -78,9 +89,23 @@ window.deleteEmployee = async function (id) {
         if (!response.ok) throw new Error('Erreur');
 
         fetchEmployees(currentPage);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Supprimé !',
+            text: "L'employé a été supprimé avec succès.",
+            timer: 1500,
+            showConfirmButton: false
+        });
+
     } catch (error) {
         console.error('Erreur:', error);
-        alert('Une erreur est survenue');
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Une erreur est survenue.'
+        });
     }
 };
 
@@ -95,7 +120,7 @@ employeeForm.addEventListener('submit', async (e) => {
 
     try {
         let url, method;
-        if (isEdit) {0
+        if (isEdit) {
             url = `${employeesBaseUrl}/${formId.value}`;
             method = 'POST';
             formData.append('_method', 'PUT');
@@ -154,6 +179,8 @@ async function fetchEmployees(page = 1) {
     }
 }
 
+window.fetchEmployees = fetchEmployees;
+
 function renderTable(employees) {
     window._allEmployees = employees;
 
@@ -200,25 +227,25 @@ function renderTable(employees) {
 
 function renderPagination(p) {
     let pagesHtml = '';
-
     for (let i = 1; i <= p.last_page; i++) {
         if (i === p.current_page) {
-            pagesHtml +=
-                `<button class="w-9 h-9 flex items-center justify-center rounded-lg bg-primary text-white font-medium shadow-sm">${i}</button>`;
+            pagesHtml += `<button class="w-9 h-9 flex items-center justify-center rounded-lg bg-primary text-white font-medium shadow-sm">${i}</button>`;
         } else if (i === 1 || i === p.last_page || Math.abs(i - p.current_page) <= 2) {
-            pagesHtml +=
-                `<button onclick="fetchEmployees(${i})" class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container-high transition-all">${i}</button>`;
+            pagesHtml += `<button onclick="fetchEmployees(${i})" class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container-high transition-all">${i}</button>`;
         } else if (i === 2 || i === p.last_page - 1) {
             pagesHtml += `<span class="px-2 text-outline">...</span>`;
         }
     }
 
-    paginationContainer.innerHTML = `
-        <div class="text-body-sm text-secondary">
-            Affichage de <span class="font-semibold text-on-surface">${p.count}</span>
-            sur <span class="font-semibold text-on-surface">${p.total}</span> employés
-        </div>
-        <nav class="flex items-center gap-1">
+    const pageInfo = document.getElementById('page-info');
+    const pageNav = document.getElementById('page-nav');
+
+    if (pageInfo) {
+        pageInfo.innerHTML = `Affichage de <span class="font-semibold text-on-surface">${p.count}</span> sur <span class="font-semibold text-on-surface">${p.total}</span> employés`;
+    }
+
+    if (pageNav) {
+        pageNav.innerHTML = `
             <button ${p.current_page === 1 ? 'disabled' : `onclick="fetchEmployees(${p.current_page - 1})"`}
                 class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high disabled:opacity-40 transition-all">
                 <span class="material-symbols-outlined">chevron_left</span>
@@ -227,8 +254,8 @@ function renderPagination(p) {
             <button ${p.current_page === p.last_page ? 'disabled' : `onclick="fetchEmployees(${p.current_page + 1})"`}
                 class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high disabled:opacity-40 transition-all">
                 <span class="material-symbols-outlined">chevron_right</span>
-            </button>
-        </nav>`;
+            </button>`;
+    }
 }
 
 searchBtn.addEventListener('click', () => fetchEmployees(1));

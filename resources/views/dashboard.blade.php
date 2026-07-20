@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Annuaire des employés </title>
+    <title>annuaire telephonique</title>
+    <link rel="icon" type="image/png" href="{{ asset('Radio-dz.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
@@ -81,11 +82,17 @@
                     <span class="material-symbols-outlined" data-icon="group">group</span>
                     <span class="font-body-md">Employés</span>
                 </a>
+
+                <a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all"
+                    href="{{ route('users.create') }}">
+                    <span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+                    <span class="font-body-md">Créer utilisateur</span>
+                </a>
                
                 <a class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all"
                     href="{{ route('profile.edit') }}">
                     <span class="material-symbols-outlined" data-icon="person">person</span>
-                    <span class="font-body-md">Profile</span>
+                    <span class="font-body-md">Profil</span>
                 </a>
             </nav>
             <div class="pt-md border-t border-outline-variant space-y-1">
@@ -95,7 +102,7 @@
                     <button type="submit"
                         class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all w-full text-left">
                         <span class="material-symbols-outlined" data-icon="logout">logout</span>
-                        <span class="font-body-md">Logout</span>
+                        <span class="font-body-md">Déconnexion</span>
                     </button>
                 </form>
                 @endauth
@@ -109,14 +116,14 @@
                         <button class="lg:hidden p-2 text-secondary">
                             <span class="material-symbols-outlined" data-icon="menu">menu</span>
                         </button>
-                        <h1 class="hidden md:block font-h2 text-h2 font-semibold text-on-surface">Annuaire des employés
+                        <h1 class="hidden md:block font-h2 text-h2 font-semibold text-on-surface">annuaire telephonique
                         </h1>
-                        <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">Annuaire</h1>
+                        <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">annuaire telephonique</h1>
                     </div>
                     <div class="flex items-center gap-md">
                         <button id="add-employee-btn"
                             class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm">
-                            Add Employee
+                            Ajouter un employé
                         </button>
                     </div>
                 </div>
@@ -143,8 +150,8 @@
                         <select id="type"
                             class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface">
                             <option value="">Tous les types</option>
-                            <option value="nom">Nom</option>
                             <option value="numero">Numéro</option>
+                            <option value="nom">Nom</option>
                             <option value="direction">Direction</option>
                             <option value="sous_direction">Sous-direction</option>
                             <option value="departement">Département</option>
@@ -238,59 +245,7 @@
                         </table>
                     </div>
 
-                    {{-- Pagination --}}
-                    <div id="pagination-container"
-                        class="px-6 py-5 bg-surface-container-lowest border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div class="text-body-sm text-secondary">
-                             <span class="font-semibold text-on-surface</span>
-                             <span class="font-semibold text-on-surface"></span> 
-                        </div>
-                        <nav class="flex items-center gap-1">
-                            @if ($employees->onFirstPage())
-                            <button
-                                class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high disabled:opacity-40 transition-all"
-                                disabled>
-                                <span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
-                            </button>
-                            @else
-                            <button onclick="fetchEmployees({{ $employees->currentPage() - 1 }})"
-                                class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high transition-all">
-                                <span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
-                            </button>
-                            @endif
-
-                            <div class="flex items-center px-2">
-                                @for ($i = 1; $i <= $employees->lastPage(); $i++)
-                                    @if ($i == $employees->currentPage())
-                                    <button
-                                        class="w-9 h-9 flex items-center justify-center rounded-lg bg-primary text-white font-medium shadow-sm">{{ $i }}</button>
-                                    @elseif ($i == 1 || $i == $employees->lastPage() || abs($i -
-                                    $employees->currentPage()) <= 2) <button onclick="fetchEmployees({{ $i }})"
-                                        class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container-high transition-all">
-                                        {{ $i }}</button>
-                                        @elseif ($i == 2 || $i == $employees->lastPage() - 1)
-                                        <span class="px-2 text-outline">...</span>
-                                        @endif
-                                        @endfor
-                            </div>
-
-                            @if ($employees->hasMorePages())
-                            <button onclick="fetchEmployees({{ $employees->currentPage() + 1 }})"
-                                class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high transition-all">
-                                <span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
-                            </button>
-                            @else
-                            <button
-                                class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high disabled:opacity-40 transition-all"
-                                disabled>
-                                <span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
-                            </button>
-                            @endif
-                        </nav>
-                    </div>
-
-                    <div id="pagination-container"
-                        class="px-6 py-5 bg-surface-container-lowest border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="px-6 py-5 bg-surface-container-lowest border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-4">
 
                         {{-- LEFT: Print & Download buttons --}}
                         <div class="flex items-center gap-3">
@@ -306,18 +261,41 @@
                             </button>
                         </div>
 
-                        {{-- RIGHT: Page count + pagination nav --}}
-                        <div class="flex flex-col sm:flex-row items-center gap-4">
-                            <div class="text-body-sm text-secondary">
-                                Affichage de <span
-                                    class="font-semibold text-on-surface">{{ $employees->count() }}</span>
-                                sur <span class="font-semibold text-on-surface">{{ $employees->total() }}</span>
-                                employés
+                        {{-- RIGHT: Page count --}}
+                        <div id="pagination-container" class="flex items-center gap-4">
+                            <div class="text-body-sm text-secondary" id="page-info">
+                                Affichage de <span class="font-semibold text-on-surface">{{ $employees->count() }}</span>
+                                sur <span class="font-semibold text-on-surface">{{ $employees->total() }}</span> employés
                             </div>
-                            <nav class="flex items-center gap-1">
-                                {{-- pagination buttons stay exactly the same --}}
+
+                            <nav class="flex items-center gap-1" id="page-nav">
+                                <button @disabled($employees->onFirstPage())
+                                    onclick="fetchEmployees({{ max(1, $employees->currentPage() - 1) }})"
+                                    class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high disabled:opacity-40 transition-all">
+                                    <span class="material-symbols-outlined">chevron_left</span>
+                                </button>
+
+                                <div class="flex items-center px-2">
+                                    @for ($i = 1; $i <= $employees->lastPage(); $i++)
+                                        @if ($i == $employees->currentPage())
+                                            <button class="w-9 h-9 flex items-center justify-center rounded-lg bg-primary text-white font-medium shadow-sm">{{ $i }}</button>
+                                        @elseif ($i == 1 || $i == $employees->lastPage() || abs($i - $employees->currentPage()) <= 2)
+                                            <button onclick="fetchEmployees({{ $i }})"
+                                                class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container-high transition-all">{{ $i }}</button>
+                                        @elseif ($i == 2 || $i == $employees->lastPage() - 1)
+                                            <span class="px-2 text-outline">...</span>
+                                        @endif
+                                    @endfor
+                                </div>
+
+                                <button @disabled($employees->hasMorePages())
+                                    onclick="fetchEmployees({{ min($employees->lastPage(), $employees->currentPage() + 1) }})"
+                                    class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high disabled:opacity-40 transition-all">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
                             </nav>
                         </div>
+
                     </div>
 
                 </div>
@@ -417,9 +395,12 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-type">Type</label>
-                            <input id="form-type" name="type"
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="CDI">
+                            <select id="form-type" name="type" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                                <option value="" disabled selected>—</option>
+                                <option value="4 chiffres">4 chiffres</option>
+                                <option value="6 chiffres">6 chiffres</option>
+                            </select>
                         </div>
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-2">
@@ -449,6 +430,10 @@
                 style="font-variation-settings: 'FILL' 1;">group</span>
             <span class="text-[10px] mt-1 font-medium">Employés</span>
         </a>
+        <a class="flex flex-col items-center text-secondary" href="{{ route('users.create') }}">
+            <span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+            <span class="text-[10px] mt-1 font-medium">Utilisateur</span>
+        </a>
         <a class="flex flex-col items-center text-secondary" href="#">
             <span class="material-symbols-outlined" data-icon="search">search</span>
             <span class="text-[10px] mt-1 font-medium">Recherche</span>
@@ -461,7 +446,7 @@
             <span class="material-symbols-outlined" data-icon="person">person</span>
             <span class="text-[10px] mt-1 font-medium">Profil</span>
         </a>
-    </nav>
+    </nav>  
 
 
 </body>
