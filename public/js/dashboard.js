@@ -93,6 +93,8 @@ function resetAutoLogout() {
 resetAutoLogout();
 
 
+//end atou
+
 const searchInput = document.getElementById('search');
 const typeSelect = document.getElementById('type');
 const searchForm = document.getElementById('search-form');

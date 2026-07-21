@@ -28,11 +28,11 @@
 
                 <div class="grid gap-5 md:grid-cols-2">
                     <div>
-                        <label for="name" class="block text-sm font-medium text-secondary mb-2">Nom</label>
-                        <input id="name" name="name" type="text" value="{{ old('name') }}" required
+                        <label for="username" class="block text-sm font-medium text-secondary mb-2">Nom d'utilisateur</label>
+                        <input id="username" name="username" type="text" value="{{ old('username') }}" required
                             class="w-full rounded-lg border border-outline-variant bg-surface px-4 py-3 outline-none focus:border-primary"
-                            placeholder="Nom complet">
-                        @error('name') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                            placeholder="Nom d'utilisateur">
+                        @error('username') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div>

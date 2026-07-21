@@ -50,14 +50,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
  /*
-
-    */
-
-        Route::prefix('referentiel')->name('referentiel.')->group(function () {
+         Route::prefix('referentiel')->name('referentiel.')->group(function () {
         Route::get('/', [\App\Http\Controllers\ReferentielController::class, 'index'])->name('index');
         Route::post('{type}', [\App\Http\Controllers\ReferentielController::class, 'store'])->name('store');
         Route::put('{type}/{id}', [\App\Http\Controllers\ReferentielController::class, 'update'])->name('update');
         Route::delete('{type}/{id}', [\App\Http\Controllers\ReferentielController::class, 'destroy'])->name('destroy');
     });
+
+    */
+
+
 
 require __DIR__.'/auth.php';
