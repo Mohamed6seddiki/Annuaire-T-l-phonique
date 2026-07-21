@@ -1,3 +1,96 @@
+// AUTO LOGOUT
+
+const AUTO_LOGOUT_MINUTES = 30; 
+const WARNING_SECONDS     = 10; 
+
+let logoutTimer;
+let warningTimer;
+let countdownInterval;
+let warningShown = false;
+
+function getLogoutUrl() {
+    const logoutForm = document.querySelector('form[action*="logout"]');
+    return logoutForm ? logoutForm.action : '/logout';
+}
+
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.content
+        || document.querySelector('input[name="_token"]')?.value
+        || '';
+}
+
+function doLogout() {
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': getCsrfToken(),
+            'Content-Type': 'application/json',
+        },
+    }).finally(() => {
+        window.location.href = '/login';
+    });
+}
+
+function showWarning() {
+    if (warningShown) return;
+    warningShown = true;
+
+    let remaining = WARNING_SECONDS;
+
+ Swal.fire({
+    title: 'Avertissement : session expirée',
+    html: `Vous serez automatiquement déconnecté en raison de votre inactivité.<br><br>
+           <b id="swal-countdown">${remaining}</b> secondes restantes`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#2563eb',
+    cancelButtonColor: '#dc3545',
+    confirmButtonText: 'Rester sur la page',
+    cancelButtonText: 'Se déconnecter maintenant',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+        countdownInterval = setInterval(() => {
+            remaining--;
+            const el = document.getElementById('swal-countdown');
+            if (el) el.textContent = remaining;
+
+            if (remaining <= 0) {
+                clearInterval(countdownInterval);
+                Swal.close();
+                doLogout();
+            }
+        }, 1000);
+    },
+    willClose: () => {
+        clearInterval(countdownInterval);
+    }
+}).then((result) => {
+    if (result.isConfirmed) {
+        warningShown = false;
+        resetAutoLogout();
+    } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+        doLogout();
+    }
+});
+}
+
+function resetAutoLogout() {
+    clearTimeout(logoutTimer);
+    clearTimeout(warningTimer);
+
+    const totalMs = AUTO_LOGOUT_MINUTES * 60 * 1000;
+    const warnMs  = totalMs - WARNING_SECONDS * 1000;
+
+    warningTimer = setTimeout(showWarning, warnMs > 0 ? warnMs : totalMs);
+    logoutTimer  = setTimeout(() => { if (!warningShown) doLogout(); }, totalMs);
+}
+
+['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll', 'click'].forEach(event => {
+    document.addEventListener(event, () => { if (!warningShown) resetAutoLogout(); });
+});
+
+resetAutoLogout();
 
 
 const searchInput = document.getElementById('search');
@@ -70,7 +163,6 @@ window.editEmployee = function (id) {
 };
 
 window.deleteEmployee = async function (id) {
-
     const result = await Swal.fire({
         title: 'Supprimer cet employé ?',
         text: "Cette action est irréversible !",
@@ -107,12 +199,7 @@ window.deleteEmployee = async function (id) {
 
     } catch (error) {
         console.error('Erreur:', error);
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Erreur',
-            text: 'Une erreur est survenue.'
-        });
+        Swal.fire({ icon: 'error', title: 'Erreur', text: 'Une erreur est survenue.' });
     }
 };
 
@@ -205,18 +292,14 @@ function renderTable(employees) {
     }
 
     tableBody.innerHTML = employees.map(emp => {
-
         const actions = window.isAdmin ? `
             <td class="px-4 py-4 text-center whitespace-nowrap">
                 <button onclick="editEmployee('${emp.id}')"
-                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                    title="Modifier">
+                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Modifier">
                     <span class="material-symbols-outlined text-lg">edit</span>
                 </button>
-
                 <button onclick="deleteEmployee('${emp.id}')"
-                    class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                    title="Supprimer">
+                    class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Supprimer">
                     <span class="material-symbols-outlined text-lg">delete</span>
                 </button>
             </td>
@@ -224,26 +307,18 @@ function renderTable(employees) {
 
         return `
             <tr class="hover:bg-surface-container-low/50 transition-colors group">
-                <td class="px-4 py-4  font-medium text-on-surface">${emp.numero}</td>
+                <td class="px-4 py-4 font-medium text-on-surface">${emp.numero}</td>
                 <td class="px-4 py-4 text-secondary">${emp.nom}</td>
                 <td class="px-4 py-4 text-secondary">${emp.direction}</td>
                 <td class="px-4 py-4 text-secondary">${emp.sous_direction}</td>
                 <td class="px-4 py-4 text-secondary">${emp.departement}</td>
-
                 <td class="px-4 py-4">
-                    <span
-                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
-                        style="
-                            color:${emp.service_color ?? '#1d4ed8'};
-                            background-color:${emp.service_bg ?? '#eff6ff'};
-                            border-color:${emp.service_border ?? '#bfdbfe'};
-                        ">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
+                        style="color:${emp.service_color ?? '#1d4ed8'};background-color:${emp.service_bg ?? '#eff6ff'};border-color:${emp.service_border ?? '#bfdbfe'};">
                         ${emp.service}
                     </span>
                 </td>
-
                 <td class="px-4 py-4 text-secondary">${emp.site}</td>
-
                 ${actions}
             </tr>
         `;
@@ -263,7 +338,7 @@ function renderPagination(p) {
     }
 
     const pageInfo = document.getElementById('page-info');
-    const pageNav = document.getElementById('page-nav');
+    const pageNav  = document.getElementById('page-nav');
 
     if (pageInfo) {
         pageInfo.innerHTML = `Affichage de <span class="font-semibold text-on-surface">${p.count}</span> sur <span class="font-semibold text-on-surface">${p.total}</span> employés`;
@@ -289,23 +364,18 @@ searchForm.addEventListener('submit', (e) => {
 });
 
 searchInput.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') {
-        return;
-    } else {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => fetchEmployees(1), 500);
-    }
+    if (e.key === 'Enter') return;
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => fetchEmployees(1), 500);
 });
 
 typeSelect.addEventListener('change', () => fetchEmployees(1));
 
 searchInput.addEventListener('focus', () => searchInput.parentElement.classList.add('scale-[1.01]'));
-searchInput.addEventListener('blur', () => searchInput.parentElement.classList.remove('scale-[1.01]'));
+searchInput.addEventListener('blur',  () => searchInput.parentElement.classList.remove('scale-[1.01]'));
 
 window.printEmployees = function () {
-    const employees = window._allEmployees?.length
-        ? window._allEmployees
-        : window._currentEmployees;
+    const employees = window._allEmployees?.length ? window._allEmployees : window._currentEmployees;
     if (!employees || employees.length === 0) return;
 
     const html = `
@@ -331,21 +401,14 @@ window.printEmployees = function () {
             </tr></thead>
             <tbody>
                 ${employees.map(e => `<tr>
-                    <td>${e.numero ?? ''}</td>
-                    <td>${e.nom ?? ''}</td>
-                    <td>${e.direction ?? ''}</td>
-                    <td>${e.sous_direction ?? ''}</td>
-                    <td>${e.departement ?? ''}</td>
-                    <td>${e.service ?? ''}</td>
-                    <td>${e.site ?? ''}</td>
+                    <td>${e.numero ?? ''}</td><td>${e.nom ?? ''}</td><td>${e.direction ?? ''}</td>
+                    <td>${e.sous_direction ?? ''}</td><td>${e.departement ?? ''}</td>
+                    <td>${e.service ?? ''}</td><td>${e.site ?? ''}</td>
                 </tr>`).join('')}
             </tbody>
         </table>
         <script>
-            window.onload = function () {
-                window.print();
-                setTimeout(function () { window.close(); }, 500);
-            };
+            window.onload = function () { window.print(); setTimeout(function () { window.close(); }, 500); };
         <\/script>
         </body></html>`;
 
@@ -398,10 +461,7 @@ window.exportEmployees = function () {
         doc.text(String(text ?? ''), x + 1, yp + rowH - 2);
     }
 
-    // Header
     cols.forEach((c, ci) => drawCell(cellX(ci), c.width, y, c.title, [241, 245, 249], true));
-
-    // Rows
     employees.forEach((e, i) => {
         const ry = y + rowH + i * rowH;
         const vals = [e.numero, e.nom, e.direction, e.sous_direction, e.departement, e.service, e.site];
@@ -412,15 +472,10 @@ window.exportEmployees = function () {
     doc.save(`employes_radio_algerienne_${new Date().toISOString().slice(0,10)}.pdf`);
 };
 
-if (printEmployeesBtn) {
-    printEmployeesBtn.addEventListener('click', window.printEmployees);
-}
+if (printEmployeesBtn) printEmployeesBtn.addEventListener('click', window.printEmployees);
+if (exportEmployeesBtn) exportEmployeesBtn.addEventListener('click', window.exportEmployees);
 
-if (exportEmployeesBtn) {
-    exportEmployeesBtn.addEventListener('click', window.exportEmployees);
-}
-
-//4 chiffres ou 6 chiffres
+// 4 chiffres ou 6 chiffres
 document.getElementById('form-type').addEventListener('change', function () {
     const numeroInput = document.getElementById('form-numero');
     const type = this.value;
@@ -441,17 +496,12 @@ document.getElementById('form-type').addEventListener('change', function () {
         numeroInput.removeAttribute('pattern');
         numeroInput.placeholder = '0001';
     }
-
     numeroInput.value = '';
 });
 
-
 document.getElementById('form-numero').addEventListener('input', function () {
     this.value = this.value.replace(/\D/g, '');
-
     const type = document.getElementById('form-type').value;
     const max = type === '4 chiffres' ? 4 : type === '6 chiffres' ? 6 : null;
     if (max) this.value = this.value.slice(0, max);
 });
-
-

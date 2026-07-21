@@ -70,4 +70,13 @@
         © {{ date('Y') }} Radio Algérienne
     </p>
 
+    <!-- Session Status -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
+
+
+    @if (session('message'))
+    <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg mb-4 text-sm text-center">
+        ⚠️ {{ session('message') }}
+    </div>
+    @endif
 </x-guest-layout>
