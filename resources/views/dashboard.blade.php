@@ -13,8 +13,10 @@
     <script>
     window.isAdmin = @json(auth()->user()->can('admin'));
     </script>
-    
-    @vite(['resources/css/app.css', 'resources/js/dashboard.js'])
+
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
 
     <style>
     body {
@@ -123,8 +125,10 @@
                         <button class="lg:hidden p-2 text-secondary">
                             <span class="material-symbols-outlined" data-icon="menu">menu</span>
                         </button>
-                        <h1 class="hidden md:block font-h2 text-h2 font-semibold text-on-surface">annuaire telephonique</h1>
-                        <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">annuaire telephonique</h1>
+                        <h1 class="hidden md:block font-h2 text-h2 font-semibold text-on-surface">annuaire téléphonique
+                        </h1>
+                        <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">annuaire
+                            telephonique</h1>
                     </div>
                     @can('admin')
                     <div class="flex items-center gap-md">
@@ -148,23 +152,24 @@
                                 data-icon="search">search</span>
                             <input
                                 class="w-full pl-10 pr-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                id="search" name="search" value="{{ request('search') }}" placeholder="Rechercher un employé..." type="text">
+                                id="search" name="search" value="{{ request('search') }}"
+                                placeholder="Rechercher un employé..." type="text">
                         </div>
                     </div>
 
                     <div class="w-full flex-1 space-y-2">
                         <label class="text-label-md text-secondary ml-1" for="type">Type</label>
-                        <select id="type"
-                            name="type"
+                        <select id="type" name="type"
                             class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface">
-                            <option value="" @selected(request('type') === '')>Tous les types</option>
-                            <option value="numero" @selected(request('type') === 'numero')>Numéro</option>
-                            <option value="nom" @selected(request('type') === 'nom')>Nom</option>
-                            <option value="direction" @selected(request('type') === 'direction')>Direction</option>
-                            <option value="sous_direction" @selected(request('type') === 'sous_direction')>Sous-direction</option>
-                            <option value="departement" @selected(request('type') === 'departement')>Département</option>
-                            <option value="service" @selected(request('type') === 'service')>Service</option>
-                            <option value="site" @selected(request('type') === 'site')>Site</option>
+                            <option value="" @selected(request('type')==='' )>Tous les types</option>
+                            <option value="numero" @selected(request('type')==='numero' )>Numéro</option>
+                            <option value="nom" @selected(request('type')==='nom' )>Nom</option>
+                            <option value="direction" @selected(request('type')==='direction' )>Direction</option>
+                            <option value="sous_direction" @selected(request('type')==='sous_direction' )>Sous-direction
+                            </option>
+                            <option value="departement" @selected(request('type')==='departement' )>Département</option>
+                            <option value="service" @selected(request('type')==='service' )>Service</option>
+                            <option value="site" @selected(request('type')==='site' )>Site</option>
                         </select>
                     </div>
 
@@ -182,15 +187,31 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-outline-variant">
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Numéro</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Nom</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Direction</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Sous-direction</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Département</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Service</th>
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">Site</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Numéro</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Nom</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Direction</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Sous-direction</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Département</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Service</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider">
+                                        Site</th>
                                     @can('admin')
-                                    <th class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider text-center">Actions</th>
+                                    <th
+                                        class="px-4 py-4 font-semibold text-secondary text-label-md uppercase tracking-wider text-center">
+                                        Actions</th>
                                     @endcan
                                 </tr>
                             </thead>
@@ -227,7 +248,8 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="{{ auth()->user()->can('admin') ? 8 : 7 }}" class="px-6 py-12 text-center text-secondary">
+                                    <td colspan="{{ auth()->user()->can('admin') ? 8 : 7 }}"
+                                        class="px-6 py-12 text-center text-secondary">
                                         <div class="flex flex-col items-center gap-3">
                                             <span class="material-symbols-outlined text-4xl text-outline"
                                                 data-icon="group_off">group_off</span>
@@ -240,7 +262,8 @@
                         </table>
                     </div>
 
-                    <div class="px-6 py-5 bg-surface-container-lowest border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div
+                        class="px-6 py-5 bg-surface-container-lowest border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
                             <button id="print-employees-btn" type="button"
                                 class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-outline-variant text-secondary hover:bg-surface-container-high transition-colors">
@@ -256,33 +279,39 @@
 
                         <div id="pagination-container" class="flex items-center gap-4">
                             <div class="text-body-sm text-secondary" id="page-info">
-                                Affichage de <span class="font-semibold text-on-surface">{{ $employees->count() }}</span>
-                                sur <span class="font-semibold text-on-surface">{{ $employees->total() }}</span> employés
+                                Affichage de <span
+                                    class="font-semibold text-on-surface">{{ $employees->count() }}</span>
+                                sur <span class="font-semibold text-on-surface">{{ $employees->total() }}</span>
+                                employés
                             </div>
 
                             <nav class="flex items-center gap-1" id="page-nav">
                                 <button @disabled($employees->onFirstPage())
                                     onclick="fetchEmployees({{ max(1, $employees->currentPage() - 1) }})"
-                                    class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high disabled:opacity-40 transition-all">
+                                    class="p-2 rounded-lg border border-outline-variant text-secondary
+                                    hover:bg-surface-container-high disabled:opacity-40 transition-all">
                                     <span class="material-symbols-outlined">chevron_left</span>
                                 </button>
 
                                 <div class="flex items-center px-2">
                                     @for ($i = 1; $i <= $employees->lastPage(); $i++)
                                         @if ($i == $employees->currentPage())
-                                            <button class="w-9 h-9 flex items-center justify-center rounded-lg bg-primary text-white font-medium shadow-sm">{{ $i }}</button>
-                                        @elseif ($i == 1 || $i == $employees->lastPage() || abs($i - $employees->currentPage()) <= 2)
-                                            <button onclick="fetchEmployees({{ $i }})"
-                                                class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container-high transition-all">{{ $i }}</button>
-                                        @elseif ($i == 2 || $i == $employees->lastPage() - 1)
+                                        <button
+                                            class="w-9 h-9 flex items-center justify-center rounded-lg bg-primary text-white font-medium shadow-sm">{{ $i }}</button>
+                                        @elseif ($i == 1 || $i == $employees->lastPage() || abs($i -
+                                        $employees->currentPage()) <= 2) <button onclick="fetchEmployees({{ $i }})"
+                                            class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container-high transition-all">
+                                            {{ $i }}</button>
+                                            @elseif ($i == 2 || $i == $employees->lastPage() - 1)
                                             <span class="px-2 text-outline">...</span>
-                                        @endif
-                                    @endfor
+                                            @endif
+                                            @endfor
                                 </div>
 
                                 <button @disabled($employees->hasMorePages())
                                     onclick="fetchEmployees({{ min($employees->lastPage(), $employees->currentPage() + 1) }})"
-                                    class="p-2 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high disabled:opacity-40 transition-all">
+                                    class="p-2 rounded-lg border border-outline-variant text-secondary
+                                    hover:bg-surface-container-high disabled:opacity-40 transition-all">
                                     <span class="material-symbols-outlined">chevron_right</span>
                                 </button>
                             </nav>
@@ -311,21 +340,48 @@
                     <input type="hidden" id="form-id" name="id" value="">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary" for="form-type">Type</label>
+                            <select id="form-type" name="type" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                                <option value="" disabled selected>—</option>
+                                <option value="4 chiffres">4 chiffres</option>
+                                <option value="6 chiffres">6 chiffres</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-numero">Numéro</label>
                             <input id="form-numero" name="numero" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
                                 placeholder="0001">
                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
                         <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-nom">Nom</label>
                             <input id="form-nom" name="nom" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
                                 placeholder="Dupont">
                         </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-label-md font-medium text-secondary"
+                                for="form-id-departement">Département</label>
+                            <select id="form-id-departement" name="id_departement" required
+                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                                <option value="">—</option>
+                                @foreach ($departements as $dep)
+                                <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-id-direction">Direction</label>
+                            <label class="text-label-md font-medium text-secondary"
+                                for="form-id-direction">Direction</label>
                             <select id="form-id-direction" name="id_direction" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
@@ -335,7 +391,8 @@
                             </select>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-id-sdirection">Sous-direction</label>
+                            <label class="text-label-md font-medium text-secondary"
+                                for="form-id-sdirection">Sous-direction</label>
                             <select id="form-id-sdirection" name="id_sdirection" required
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
                                 <option value="">—</option>
@@ -345,17 +402,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-id-departement">Département</label>
-                            <select id="form-id-departement" name="id_departement" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                                <option value="">—</option>
-                                @foreach ($departements as $dep)
-                                <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-id-site">Site</label>
                             <select id="form-id-site" name="id_site" required
@@ -366,8 +413,6 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-1.5">
                             <label class="text-label-md font-medium text-secondary" for="form-service">Service</label>
                             <input id="form-service" name="service"
@@ -380,15 +425,8 @@
                                 class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
                                 placeholder="Cadre">
                         </div>
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-type">Type</label>
-                            <select id="form-type" name="type" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                                <option value="" disabled selected>—</option>
-                                <option value="4 chiffres">4 chiffres</option>
-                                <option value="6 chiffres">6 chiffres</option>
-                            </select>
-                        </div>
+
+
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-2">
                         <button type="button" id="modal-cancel-btn"
@@ -410,9 +448,11 @@
     window._allEmployees = @json($allEmployees);
     </script>
 
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-outline-variant flex justify-around items-center py-3 px-2 z-50 shadow-2xl">
+    <nav
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-outline-variant flex justify-around items-center py-3 px-2 z-50 shadow-2xl">
         <a class="flex flex-col items-center text-primary" href="{{ route('dashboard') }}">
-            <span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+            <span class="material-symbols-outlined" data-icon="group"
+                style="font-variation-settings: 'FILL' 1;">group</span>
             <span class="text-[10px] mt-1 font-medium">Employés</span>
         </a>
         @can('admin')
@@ -434,6 +474,12 @@
             <span class="text-[10px] mt-1 font-medium">Profil</span>
         </a>
     </nav>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- dashboard -->
+    <script type="module" src="{{ asset('js/dashboard.js') }}"></script>
 
 </body>
 

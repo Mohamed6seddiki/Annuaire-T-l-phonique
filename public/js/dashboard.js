@@ -1,5 +1,4 @@
-import { jsPDF } from 'jspdf';
-import Swal from 'sweetalert2';
+
 
 const searchInput = document.getElementById('search');
 const typeSelect = document.getElementById('type');
@@ -225,8 +224,8 @@ function renderTable(employees) {
 
         return `
             <tr class="hover:bg-surface-container-low/50 transition-colors group">
-                <td class="px-4 py-4 text-secondary">${emp.numero}</td>
-                <td class="px-4 py-4 font-medium text-on-surface">${emp.nom}</td>
+                <td class="px-4 py-4  font-medium text-on-surface">${emp.numero}</td>
+                <td class="px-4 py-4 text-secondary">${emp.nom}</td>
                 <td class="px-4 py-4 text-secondary">${emp.direction}</td>
                 <td class="px-4 py-4 text-secondary">${emp.sous_direction}</td>
                 <td class="px-4 py-4 text-secondary">${emp.departement}</td>
@@ -364,7 +363,7 @@ window.exportEmployees = function () {
     const employees = window._allEmployees?.length ? window._allEmployees : window._currentEmployees;
     if (!employees || employees.length === 0) return;
 
-    const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
     const margin = 10;
     const rowH = 7;
     const cols = [
@@ -420,5 +419,39 @@ if (printEmployeesBtn) {
 if (exportEmployeesBtn) {
     exportEmployeesBtn.addEventListener('click', window.exportEmployees);
 }
+
+//4 chiffres ou 6 chiffres
+document.getElementById('form-type').addEventListener('change', function () {
+    const numeroInput = document.getElementById('form-numero');
+    const type = this.value;
+
+    if (type === '4 chiffres') {
+        numeroInput.setAttribute('maxlength', '4');
+        numeroInput.setAttribute('minlength', '4');
+        numeroInput.setAttribute('pattern', '\\d{4}');
+        numeroInput.placeholder = '0001';
+    } else if (type === '6 chiffres') {
+        numeroInput.setAttribute('maxlength', '6');
+        numeroInput.setAttribute('minlength', '6');
+        numeroInput.setAttribute('pattern', '\\d{6}');
+        numeroInput.placeholder = '000001';
+    } else {
+        numeroInput.removeAttribute('maxlength');
+        numeroInput.removeAttribute('minlength');
+        numeroInput.removeAttribute('pattern');
+        numeroInput.placeholder = '0001';
+    }
+
+    numeroInput.value = '';
+});
+
+
+document.getElementById('form-numero').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '');
+
+    const type = document.getElementById('form-type').value;
+    const max = type === '4 chiffres' ? 4 : type === '6 chiffres' ? 6 : null;
+    if (max) this.value = this.value.slice(0, max);
+});
 
 

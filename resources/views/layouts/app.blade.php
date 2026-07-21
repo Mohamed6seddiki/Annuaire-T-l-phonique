@@ -12,7 +12,7 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link rel="icon" type="image/png" href="{{ asset('Radio-dz.png') }}">
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -32,5 +32,7 @@
                 {{ $slot }}
             </main>
         </div>
+        <script src="{{ asset('js/app.js') }}"></script>
+
     </body>
 </html>

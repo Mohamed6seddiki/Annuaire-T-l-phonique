@@ -6,7 +6,7 @@
     <title>{{ $title }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css'])
+   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .material-symbols-outlined { font-variation-settings: 'FILL'0, 'wght'400, 'GRAD'0, 'opsz'24; vertical-align: middle; }
@@ -74,5 +74,6 @@
             <a href="{{ route('dashboard') }}" class="text-sm text-blue-600 hover:underline">&larr; Retour au tableau de bord</a>
         </div>
     </div>
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>

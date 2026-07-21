@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Créer un utilisateur</title>
-    @vite(['resources/css/app.css'])
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body class="bg-background text-on-surface min-h-screen">
     <div class="max-w-3xl mx-auto px-6 py-10">
@@ -72,5 +72,6 @@
             </form>
         </div>
     </div>
+    <script src="{{ asset('js/dashboard.js') }}"></script>
 </body>
 </html>
