@@ -92,13 +92,9 @@ function resetAutoLogout() {
 
 resetAutoLogout();
 
-
-//end atou
-
 const searchInput = document.getElementById('search');
 const typeSelect = document.getElementById('type');
 const searchForm = document.getElementById('search-form');
-const searchBtn = document.getElementById('search-btn');
 const tableBody = document.getElementById('table-body');
 const tableContainer = document.getElementById('table-container');
 const modal = document.getElementById('employee-modal');
@@ -146,19 +142,97 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
 });
 
+function buildPinInputs(count) {
+    const wrap = document.getElementById('pin-wrap');
+    const hidden = document.getElementById('form-numero');
+    if (!wrap) return;
+    
+    wrap.innerHTML = '';
+    hidden.value = '';
+    
+    for (let i = 0; i < count; i++) {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.inputMode = 'numeric';
+        inp.maxLength = 1;
+        // Smaller PIN boxes - reduced size from w-12 h-12 to w-8 h-8 or w-9 h-9
+        inp.className = 'w-9 h-13  text-center text-base font-medium bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all';
+        
+        inp.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+            if (e.target.value && i < count - 1) {
+                wrap.children[i + 1].focus();
+            }
+            const allValues = [...wrap.querySelectorAll('input')].map(x => x.value).join('');
+            hidden.value = allValues;
+        });
+        
+        inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !e.target.value && i > 0) {
+                wrap.children[i - 1].focus();
+            }
+        });
+        
+        inp.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, count);
+            [...pasted].forEach((ch, j) => {
+                if (wrap.children[j]) wrap.children[j].value = ch;
+            });
+            const next = Math.min(pasted.length, count - 1);
+            if (wrap.children[next]) {
+                wrap.children[next].focus();
+            }
+            const allValues = [...wrap.querySelectorAll('input')].map(x => x.value).join('');
+            hidden.value = allValues;
+        });
+        
+        wrap.appendChild(inp);
+    }
+}
+
 window.editEmployee = function (id) {
     const emp = window._currentEmployees?.find(e => e.id == id) || window._allEmployees?.find(e => e.id == id);
     if (!emp) return;
 
-    document.getElementById('form-nom').value = emp.nom;
-    document.getElementById('form-numero').value = emp.numero;
-    document.getElementById('form-id-direction').value = emp.direction_id;
-    document.getElementById('form-id-sdirection').value = emp.sous_direction_id;
-    document.getElementById('form-id-departement').value = emp.departement_id;
-    document.getElementById('form-id-site').value = emp.site_id;
-    document.getElementById('form-service').value = emp.service;
-    document.getElementById('form-niveau').value = emp.niveau;
-    document.getElementById('form-type').value = emp.type;
+    // Reset the form first
+    document.getElementById('form-nom').value = '';
+    document.getElementById('form-type').value = '';
+    document.getElementById('form-numero').value = '';
+    document.getElementById('form-id-direction').value = '';
+    document.getElementById('form-id-sdirection').value = '';
+    document.getElementById('form-id-departement').value = '';
+    document.getElementById('form-id-site').value = '';
+    document.getElementById('form-service').value = '';
+    document.getElementById('form-niveau').value = '';
+    
+    // Then populate with employee data
+    document.getElementById('form-nom').value = emp.nom || '';
+    
+    const typeSelect = document.getElementById('form-type');
+    const pinCount = emp.type === '6 chiffres' ? 6 : 4;
+    typeSelect.value = emp.type || '4 chiffres';
+    
+    // Build the PIN inputs
+    buildPinInputs(pinCount);
+    
+    // Set the PIN values after building
+    const digits = emp.numero ? emp.numero.toString().split('') : [];
+    const pinInputs = document.getElementById('pin-wrap').querySelectorAll('input');
+    pinInputs.forEach((box, i) => {
+        box.value = digits[i] || '';
+    });
+    
+    // Update the hidden input with the PIN values
+    const allValues = [...pinInputs].map(x => x.value).join('');
+    document.getElementById('form-numero').value = allValues || emp.numero || '';
+    
+    document.getElementById('form-id-direction').value = emp.direction_id || '';
+    document.getElementById('form-id-sdirection').value = emp.sous_direction_id || '';
+    document.getElementById('form-id-departement').value = emp.departement_id || '';
+    document.getElementById('form-id-site').value = emp.site_id || '';
+    document.getElementById('form-service').value = emp.service || '';
+    document.getElementById('form-niveau').value = emp.niveau || '';
     formId.value = id;
 
     openModal("Modifier l'employé");
@@ -477,33 +551,10 @@ window.exportEmployees = function () {
 if (printEmployeesBtn) printEmployeesBtn.addEventListener('click', window.printEmployees);
 if (exportEmployeesBtn) exportEmployeesBtn.addEventListener('click', window.exportEmployees);
 
-// 4 chiffres ou 6 chiffres
 document.getElementById('form-type').addEventListener('change', function () {
-    const numeroInput = document.getElementById('form-numero');
-    const type = this.value;
-
-    if (type === '4 chiffres') {
-        numeroInput.setAttribute('maxlength', '4');
-        numeroInput.setAttribute('minlength', '4');
-        numeroInput.setAttribute('pattern', '\\d{4}');
-        numeroInput.placeholder = '0001';
-    } else if (type === '6 chiffres') {
-        numeroInput.setAttribute('maxlength', '6');
-        numeroInput.setAttribute('minlength', '6');
-        numeroInput.setAttribute('pattern', '\\d{6}');
-        numeroInput.placeholder = '000001';
-    } else {
-        numeroInput.removeAttribute('maxlength');
-        numeroInput.removeAttribute('minlength');
-        numeroInput.removeAttribute('pattern');
-        numeroInput.placeholder = '0001';
-    }
-    numeroInput.value = '';
+    const count = this.value === '6 chiffres' ? 6 : 4;
+    buildPinInputs(count);
+    document.getElementById('form-numero').value = '';
 });
 
-document.getElementById('form-numero').addEventListener('input', function () {
-    this.value = this.value.replace(/\D/g, '');
-    const type = document.getElementById('form-type').value;
-    const max = type === '4 chiffres' ? 4 : type === '6 chiffres' ? 6 : null;
-    if (max) this.value = this.value.slice(0, max);
-});
+buildPinInputs(4);

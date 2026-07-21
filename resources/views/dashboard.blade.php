@@ -11,7 +11,7 @@
         rel="stylesheet">
 
     <script>
-    window.isAdmin = @json(auth()->user()->can('admin'));
+    window.isAdmin = @json(auth()-> user()-> can('admin'));
     </script>
 
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -324,125 +324,123 @@
 
     {{-- Add Employee Modal --}}
     <div id="employee-modal" class="fixed inset-0 z-[60] hidden">
-        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" id="modal-overlay"></div>
-        <div class="fixed inset-0 flex items-center justify-center p-4">
-            <div
-                class="bg-surface rounded-2xl shadow-2xl border border-outline-variant w-full max-w-lg max-h-[90vh] overflow-y-auto animate-modal-in">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
-                    <h2 id="modal-title" class="font-h3 text-h3 font-semibold text-on-surface">Ajouter un employé</h2>
-                    <button id="modal-close-btn"
-                        class="p-1 rounded-lg text-secondary hover:bg-surface-container-high transition-colors">
-                        <span class="material-symbols-outlined">close</span>
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" id="modal-overlay"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2 id="modal-title" class="text-xl font-semibold text-gray-900">Ajouter un employé</h2>
+                <button id="modal-close-btn" class="p-1 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="employee-form" class="p-6 space-y-5">
+                @csrf
+                <input type="hidden" id="form-id" name="id" value="">
+                
+                <!-- Row 1: Type and Numéro (PIN) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-type">Type</label>
+                        <select id="form-type" name="type" required
+                            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="" disabled selected>—</option>
+                            <option value="4 chiffres">4 chiffres</option>
+                            <option value="6 chiffres">6 chiffres</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700">Numéro </label>
+                        <div id="pin-wrap" class="flex gap-1.5"></div>
+                        <input type="hidden" id="form-numero" name="numero" required>
+                    </div>
+                </div>
+
+                <!-- Row 2: Nom and Département -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-nom">Nom complet</label>
+                        <input id="form-nom" name="nom" required
+                            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                            placeholder="Dupont Jean">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-id-departement">Département</label>
+                        <select id="form-id-departement" name="id_departement" required
+                            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="">—</option>
+                            @foreach ($departements as $dep)
+                            <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row 3: Direction and Sous-direction -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-id-direction">Direction</label>
+                        <select id="form-id-direction" name="id_direction" required
+                            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="">—</option>
+                            @foreach ($directions as $d)
+                            <option value="{{ $d->id }}">{{ $d->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-id-sdirection">Sous-direction</label>
+                        <select id="form-id-sdirection" name="id_sdirection" required
+                            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="">—</option>
+                            @foreach ($sdirections as $sd)
+                            <option value="{{ $sd->id }}">{{ $sd->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row 4: Site, Service, Niveau -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-id-site">Site</label>
+                        <select id="form-id-site" name="id_site" required
+                            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                            <option value="">—</option>
+                            @foreach ($sites as $s)
+                            <option value="{{ $s->id }}">{{ $s->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-service">Service</label>
+                        <input id="form-service" name="service"
+                            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                            placeholder="Support">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-medium text-gray-700" for="form-niveau">Niveau</label>
+                        <input id="form-niveau" name="niveau"
+                            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                            placeholder="Cadre">
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end gap-3 pt-2 border-t border-gray-200">
+                    <button type="button" id="modal-cancel-btn"
+                        class="px-6 py-2.5 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        Annuler
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-2.5 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">add</span>
+                        <span>Ajouter</span>
                     </button>
                 </div>
-                <form id="employee-form" class="p-6 space-y-5">
-                    @csrf
-                    <input type="hidden" id="form-id" name="id" value="">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-type">Type</label>
-                            <select id="form-type" name="type" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                                <option value="" disabled selected>—</option>
-                                <option value="4 chiffres">4 chiffres</option>
-                                <option value="6 chiffres">6 chiffres</option>
-                            </select>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-numero">Numéro</label>
-                            <input id="form-numero" name="numero" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="0001">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-nom">Nom</label>
-                            <input id="form-nom" name="nom" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="Dupont">
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary"
-                                for="form-id-departement">Département</label>
-                            <select id="form-id-departement" name="id_departement" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                                <option value="">—</option>
-                                @foreach ($departements as $dep)
-                                <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary"
-                                for="form-id-direction">Direction</label>
-                            <select id="form-id-direction" name="id_direction" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                                <option value="">—</option>
-                                @foreach ($directions as $d)
-                                <option value="{{ $d->id }}">{{ $d->libelle }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary"
-                                for="form-id-sdirection">Sous-direction</label>
-                            <select id="form-id-sdirection" name="id_sdirection" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                                <option value="">—</option>
-                                @foreach ($sdirections as $sd)
-                                <option value="{{ $sd->id }}">{{ $sd->libelle }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-id-site">Site</label>
-                            <select id="form-id-site" name="id_site" required
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                                <option value="">—</option>
-                                @foreach ($sites as $s)
-                                <option value="{{ $s->id }}">{{ $s->libelle }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-service">Service</label>
-                            <input id="form-service" name="service"
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="Support">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-label-md font-medium text-secondary" for="form-niveau">Niveau</label>
-                            <input id="form-niveau" name="niveau"
-                                class="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                placeholder="Cadre">
-                        </div>
-
-
-                    </div>
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <button type="button" id="modal-cancel-btn"
-                            class="px-6 py-2.5 rounded-lg font-medium text-secondary hover:bg-surface-container-high transition-colors">
-                            Annuler
-                        </button>
-                        <button type="submit"
-                            class="px-6 py-2.5 rounded-lg font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
-                            <span class="material-symbols-outlined text-lg">add</span>
-                            <span>Ajouter</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
+</div>
 
     <script>
     window._allEmployees = @json($allEmployees);
