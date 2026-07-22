@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>annuaire telephonique</title>
+    <title>Annuaire Téléphonique</title>
     <link rel="icon" type="image/png" href="{{ asset('Radio-dz.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -87,7 +87,7 @@
                 <a class="flex items-center gap-3 px-3 py-2 bg-primary-container text-on-primary-container font-medium rounded-lg transition-all"
                     href="{{ route('dashboard') }}">
                     <span class="material-symbols-outlined" data-icon="group">group</span>
-                    <span class="font-body-md">Employés</span>
+                    <span class="font-body-md">Annuaire </span>
                 </a>
 
                 @can('admin')
@@ -125,16 +125,16 @@
                         <button class="lg:hidden p-2 text-secondary">
                             <span class="material-symbols-outlined" data-icon="menu">menu</span>
                         </button>
-                        <h1 class="hidden md:block font-h2 text-h2 font-semibold text-on-surface">annuaire téléphonique
+                        <h1 class="hidden md:block font-h2 text-h2 font-semibold text-on-surface">Annuaire Téléphonique
                         </h1>
-                        <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">annuaire
-                            telephonique</h1>
+                        <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">Annuaire
+                            Téléphonique</h1>
                     </div>
                     @can('admin')
                     <div class="flex items-center gap-md">
                         <button id="add-employee-btn"
                             class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm">
-                            Ajouter un employé
+                            Ajouter 
                         </button>
                     </div>
                     @endcan
@@ -144,19 +144,7 @@
             <section class="max-w-container-max mx-auto w-full px-lg py-xl">
                 <form id="search-form" method="GET" action="{{ route('dashboard') }}"
                     class="flex flex-col md:flex-row gap-4 items-end bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
-                    <div class="flex-1 w-full space-y-2">
-                        <label class="text-label-md text-secondary ml-1" for="search">Recherche globale</label>
-                        <div class="relative group">
-                            <span
-                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors"
-                                data-icon="search">search</span>
-                            <input
-                                class="w-full pl-10 pr-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
-                                id="search" name="search" value="{{ request('search') }}"
-                                placeholder="Rechercher un employé..." type="text">
-                        </div>
-                    </div>
-
+                    
                     <div class="w-full flex-1 space-y-2">
                         <label class="text-label-md text-secondary ml-1" for="type">Type</label>
                         <select id="type" name="type"
@@ -172,6 +160,20 @@
                             <option value="site" @selected(request('type')==='site' )>Site</option>
                         </select>
                     </div>
+                    
+                    <div class="flex-1 w-full space-y-2">
+                        <label class="text-label-md text-secondary ml-1" for="search">Recherche </label>
+                        <div class="relative group">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors"
+                                data-icon="search">search</span>
+                            <input
+                                class="w-full pl-10 pr-4 py-2.5 bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline/70"
+                                id="search" name="search" value="{{ request('search') }}"
+                                placeholder="Rechercher par..." type="text">
+                        </div>
+                    </div>
+
 
                     <div class="w-full md:w-auto">
                         <button id="search-btn" type="submit"
@@ -343,7 +345,6 @@
                         <label class="text-sm font-medium text-gray-700" for="form-type">Type</label>
                         <select id="form-type" name="type" required
                             class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
-                            <option value="" disabled selected>—</option>
                             <option value="4 chiffres">4 chiffres</option>
                             <option value="6 chiffres">6 chiffres</option>
                         </select>
@@ -361,13 +362,13 @@
                         <label class="text-sm font-medium text-gray-700" for="form-nom">Nom complet</label>
                         <input id="form-nom" name="nom" required
                             class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
-                            placeholder="Dupont Jean">
+                            placeholder="">
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-sm font-medium text-gray-700" for="form-id-departement">Département</label>
                         <select id="form-id-departement" name="id_departement" required
                             class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
-                            <option value="">—</option>
+                            <option value=""></option>
                             @foreach ($departements as $dep)
                             <option value="{{ $dep->id }}">{{ $dep->libelle }}</option>
                             @endforeach
@@ -381,7 +382,7 @@
                         <label class="text-sm font-medium text-gray-700" for="form-id-direction">Direction</label>
                         <select id="form-id-direction" name="id_direction" required
                             class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
-                            <option value="">—</option>
+                            <option value=""></option>
                             @foreach ($directions as $d)
                             <option value="{{ $d->id }}">{{ $d->libelle }}</option>
                             @endforeach
@@ -391,7 +392,7 @@
                         <label class="text-sm font-medium text-gray-700" for="form-id-sdirection">Sous-direction</label>
                         <select id="form-id-sdirection" name="id_sdirection" required
                             class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
-                            <option value="">—</option>
+                            <option value=""></option>
                             @foreach ($sdirections as $sd)
                             <option value="{{ $sd->id }}">{{ $sd->libelle }}</option>
                             @endforeach
@@ -405,7 +406,7 @@
                         <label class="text-sm font-medium text-gray-700" for="form-id-site">Site</label>
                         <select id="form-id-site" name="id_site" required
                             class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
-                            <option value="">—</option>
+                            <option value=""></option>
                             @foreach ($sites as $s)
                             <option value="{{ $s->id }}">{{ $s->libelle }}</option>
                             @endforeach

@@ -450,7 +450,9 @@ typeSelect.addEventListener('change', () => fetchEmployees(1));
 searchInput.addEventListener('focus', () => searchInput.parentElement.classList.add('scale-[1.01]'));
 searchInput.addEventListener('blur',  () => searchInput.parentElement.classList.remove('scale-[1.01]'));
 
-window.printEmployees = function () {
+window.printEmployees =   function () {
+   
+
     const employees = window._allEmployees?.length ? window._allEmployees : window._currentEmployees;
     if (!employees || employees.length === 0) return;
 
