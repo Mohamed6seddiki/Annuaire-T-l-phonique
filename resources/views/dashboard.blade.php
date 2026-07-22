@@ -1,24 +1,104 @@
 <!DOCTYPE html>
-<html class="light" lang="fr">
+<html lang="fr">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Annuaire Téléphonique</title>
+
     <link rel="icon" type="image/png" href="{{ asset('Radio-dz.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
 
     <script>
+        function setFavicon() {
+            var link = document.querySelector('link[rel="icon"]');
+            if (link) {
+                link.href = document.documentElement.classList.contains('dark')
+                    ? '{{ asset('Radio-dz-blanc.png') }}'
+                    : '{{ asset('Radio-dz.png') }}';
+            }
+        }
+
+        (function() {
+            try {
+                var isDark = localStorage.getItem('dark-mode') === 'true' || (!('dark-mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.classList.toggle('dark', isDark);
+                setFavicon();
+            } catch(e) {}
+        })();
+
+        window.toggleDarkMode = function() {
+            var html = document.documentElement;
+            var isDark = !html.classList.contains('dark');
+            html.classList.toggle('dark', isDark);
+            try { localStorage.setItem('dark-mode', isDark ? 'true' : 'false'); } catch(e) {}
+            setFavicon();
+            var pairs = [
+                ['sun-icon-dashboard', 'moon-icon-dashboard'],
+                ['sun-icon-sidebar', 'moon-icon-sidebar'],
+                ['sun-icon-mobile-nav', 'moon-icon-mobile-nav'],
+            ];
+            for (var i = 0; i < pairs.length; i++) {
+                var sun = document.getElementById(pairs[i][0]);
+                var moon = document.getElementById(pairs[i][1]);
+                if (sun && moon) {
+                    if (isDark) { sun.classList.remove('hidden'); moon.classList.add('hidden'); }
+                    else { sun.classList.add('hidden'); moon.classList.remove('hidden'); }
+                }
+            }
+            var st = document.getElementById('dark-mode-text-sidebar');
+            if (st) st.textContent = isDark ? 'Mode clair' : 'Mode sombre';
+            var mt = document.getElementById('dark-mode-text-mobile-nav');
+            if (mt) mt.textContent = isDark ? 'Clair' : 'Sombre';
+        };
+    </script>
+    <script>
     window.isAdmin = @json(auth()-> user()-> can('admin'));
     </script>
 
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
 
     <style>
+    .dark { --bg: #0f172a; --surface: #1e293b; --surface-lowest: #0f172a; --surface-low: #1e293b; --surface-high: #334155; --on-surface: #f1f5f9; --secondary: #94a3b8; --outline-variant: #334155; --outline: #64748b; --primary: #60a5fa; --primary-container: #1d4ed8; --on-primary-container: #ffffff; --surface-container: #1e293b; }
+    .dark body { background-color: #0f172a; color: #f1f5f9; }
+    .dark .bg-background { background-color: var(--bg); }
+    .dark .text-on-surface { color: var(--on-surface); }
+    .dark .bg-surface { background-color: var(--surface); }
+    .dark .bg-surface-container-lowest { background-color: var(--surface-lowest); }
+    .dark .bg-surface-container-low { background-color: var(--surface-low); }
+    .dark .bg-surface-container-high { background-color: var(--surface-high); }
+    .dark .bg-surface-container { background-color: var(--surface-container); }
+    .dark .text-secondary { color: var(--secondary); }
+    .dark .text-outline { color: var(--outline); }
+    .dark .text-primary { color: var(--primary); }
+    .dark #sidebar-brand { color: #ffffff; }
+    .dark .border-outline-variant { border-color: var(--outline-variant); }
+    .dark [class*=divide-] > :not([hidden]) ~ :not([hidden]) { border-color: var(--outline-variant) !important; }
+    .dark .bg-primary-container { background-color: var(--primary-container); }
+    .dark .text-on-primary-container { color: var(--on-primary-container); }
+    .dark .hover\:bg-surface-container-high:hover { background-color: var(--surface-high); }
+    .dark .hover\:bg-surface-container-low\/50:hover { background-color: color-mix(in srgb, var(--surface-low) 50%, transparent); }
+    .dark .bg-white { background-color: var(--surface); }
+    .dark .text-gray-900 { color: var(--on-surface); }
+    .dark .text-gray-700, .dark .text-gray-500 { color: var(--secondary); }
+    .dark .border-gray-200, .dark .border-gray-300 { border-color: var(--outline-variant); }
+    .dark .bg-gray-100 { background-color: var(--surface-low); }
+    .dark .hover\:bg-gray-100:hover { background-color: var(--surface-high); }
+    .dark .bg-blue-600 { background-color: var(--primary-container); }
+    .dark .text-blue-600 { color: var(--primary); }
+    .dark .hover\:bg-blue-50:hover { background-color: #1e3a5f; }
+    .dark .hover\:bg-blue-700:hover { background-color: #1e40af; }
+    .dark .bg-blue-50 { background-color: #172554; }
+    .dark .placeholder\:text-gray-400::placeholder { color: var(--outline); }
+    .dark select, .dark input, .dark textarea { background-color: var(--surface); color: var(--on-surface); border-color: var(--outline-variant); }
+    .dark option { background-color: var(--surface-lowest); color: var(--on-surface); }
+    .dark .rounded-2xl { background-color: var(--surface); border-color: var(--outline-variant); }
+    .dark .shadow-sm, .dark .shadow-md, .dark .shadow-2xl, .dark .shadow-xl { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5); }
+    .dark .ring-2 { --tw-ring-color: rgba(59,130,246,0.3); }
+    .dark .hover\:text-blue-700:hover { color: #93c5fd; }
+
     body {
         font-family: 'Inter', sans-serif;
     }
@@ -46,6 +126,10 @@
         background: #cbd5e1;
     }
 
+    .dark ::-webkit-scrollbar-track { background: #1e293b; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
     #table-container {
         transition: opacity 0.2s ease;
     }
@@ -71,6 +155,7 @@
         animation: modal-in 0.2s ease-out;
     }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body class="bg-background text-on-surface antialiased min-h-screen" data-dashboard-route="{{ route('dashboard') }}"
@@ -79,8 +164,9 @@
         <aside
             class="hidden lg:flex flex-col h-screen w-64 border-r border-outline-variant bg-surface-container-lowest p-md space-y-sm sticky top-0">
             <div class="mb-xl px-sm flex flex-col items-center text-center">
-                <img src="{{ asset('Radio-dz.png') }}" alt="Logo" class="h-14 w-auto">
-                <div class="font-h3 text-h3 font-bold text-primary mt-2">Radio Algérienne</div>
+                <img src="{{ asset('Radio-dz.png') }}" alt="Logo" class="h-14 w-auto dark:hidden">
+                <img src="{{ asset('Radio-dz-blanc.png') }}" alt="Logo" class="h-14 w-auto hidden dark:block">
+                <div id="sidebar-brand" class="font-h3 text-h3 font-bold text-primary dark:text-white mt-2">Radio Algérienne</div>
                 <div class="text-secondary text-label-sm"></div>
             </div>
             <nav class="flex-1 space-y-1">
@@ -105,6 +191,16 @@
                 </a>
             </nav>
             <div class="pt-md border-t border-outline-variant space-y-1">
+                <button id="dark-mode-toggle-sidebar" onclick="toggleDarkMode()"
+                    class="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-high rounded-lg transition-all w-full text-left">
+                    <svg id="sun-icon-sidebar" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon-sidebar" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <span id="dark-mode-text-sidebar" class="font-body-md">Mode sombre</span>
+                </button>
                 @auth
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -130,14 +226,7 @@
                         <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">Annuaire
                             Téléphonique</h1>
                     </div>
-                    @can('admin')
-                    <div class="flex items-center gap-md">
-                        <button id="add-employee-btn"
-                            class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm">
-                            Ajouter 
-                        </button>
-                    </div>
-                    @endcan
+                   
                 </div>
             </header>
 
@@ -464,6 +553,15 @@
             <span class="material-symbols-outlined" data-icon="search">search</span>
             <span class="text-[10px] mt-1 font-medium">Recherche</span>
         </a>
+        <button id="dark-mode-toggle-mobile-nav" onclick="toggleDarkMode()" class="flex flex-col items-center text-secondary">
+            <svg id="sun-icon-mobile-nav" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="moon-icon-mobile-nav" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+            <span class="text-[10px] mt-1 font-medium" id="dark-mode-text-mobile-nav">Mode</span>
+        </button>
         <a class="flex flex-col items-center text-secondary" href="#">
             <span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
             <span class="text-[10px] mt-1 font-medium">Ajouter</span>

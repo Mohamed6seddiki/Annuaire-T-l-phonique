@@ -3,7 +3,8 @@
     <!-- Logo + Titre -->
     <div class="mb-6 flex flex-col items-center text-center">
         <a href="/">
-            <img src="{{ asset('Radio-dz.png') }}" alt="Logo Radio Algérienne" class="w-20 h-auto mb-3">
+            <img src="{{ asset('Radio-dz.png') }}" alt="Logo Radio Algérienne" class="w-20 h-auto mb-3 dark:hidden">
+            <img src="{{ asset('Radio-dz-blanc.png') }}" alt="Logo Radio Algérienne" class="w-20 h-auto mb-3 hidden dark:block">
         </a>
         <h2 class="text-lg font-bold text-[#2563eb]">Radio Algérienne</h2>
         <p class="text-sm text-gray-500 mt-1">Annuaire Téléphonique</p>
@@ -16,7 +17,7 @@
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
-        @csrf
+         @csrf
 
         <!-- Nom d'utilisateur -->
         <div>
@@ -76,7 +77,7 @@
 
     @if (session('message'))
     <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg mb-4 text-sm text-center">
-        ⚠️ {{ session('message') }}
+         {{ session('message') }}
     </div>
     @endif
 </x-guest-layout>

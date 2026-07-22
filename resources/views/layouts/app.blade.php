@@ -7,6 +7,45 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <script>
+            function setFavicon() {
+                var link = document.querySelector('link[rel="icon"]');
+                if (link) {
+                    link.href = document.documentElement.classList.contains('dark')
+                        ? '{{ asset('Radio-dz-blanc.png') }}'
+                        : '{{ asset('Radio-dz.png') }}';
+                }
+            }
+
+            (function() {
+                try {
+                    var isDark = localStorage.getItem('dark-mode') === 'true' || (!('dark-mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    document.documentElement.classList.toggle('dark', isDark);
+                    setFavicon();
+                } catch(e) {}
+            })();
+
+            window.toggleDarkMode = function() {
+                var html = document.documentElement;
+                var isDark = !html.classList.contains('dark');
+                html.classList.toggle('dark', isDark);
+                try { localStorage.setItem('dark-mode', isDark ? 'true' : 'false'); } catch(e) {}
+                setFavicon();
+                var ids = ['sun-icon', 'sun-icon-mobile'];
+                var mids = ['moon-icon', 'moon-icon-mobile'];
+                for (var i = 0; i < ids.length; i++) {
+                    var sun = document.getElementById(ids[i]);
+                    var moon = document.getElementById(mids[i]);
+                    if (sun && moon) {
+                        if (isDark) { sun.classList.remove('hidden'); moon.classList.add('hidden'); }
+                        else { sun.classList.add('hidden'); moon.classList.remove('hidden'); }
+                    }
+                }
+                var t = document.getElementById('dark-mode-text');
+                if (t) t.textContent = isDark ? 'Mode clair' : 'Mode sombre';
+            };
+        </script>
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />

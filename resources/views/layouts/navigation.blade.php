@@ -6,7 +6,8 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <img src="{{ asset('Radio-dz.png') }}" alt="Logo" class="h-10 w-auto">
+                        <img src="{{ asset('Radio-dz.png') }}" alt="Logo" class="h-10 w-auto dark:hidden">
+                        <img src="{{ asset('Radio-dz-blanc.png') }}" alt="Logo" class="h-10 w-auto hidden dark:block">
                     </a>
                 </div>
 
@@ -17,6 +18,8 @@
                     </x-nav-link>
                 </div>
             </div>
+
+            
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -70,6 +73,7 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            
         </div>
 
         <!-- Responsive Settings Options -->

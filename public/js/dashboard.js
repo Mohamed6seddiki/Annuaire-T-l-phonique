@@ -92,6 +92,9 @@ function resetAutoLogout() {
 
 resetAutoLogout();
 
+
+
+
 const searchInput = document.getElementById('search');
 const typeSelect = document.getElementById('type');
 const searchForm = document.getElementById('search-form');
@@ -458,7 +461,7 @@ window.printEmployees =   function () {
 
     const html = `
         <!DOCTYPE html>
-        <html><head><title>Liste des employés</title>
+        <html><head><title>Annuaire Téléphonique</title>
         <style>
             body { font-family: Inter, sans-serif; padding: 24px; color: #0f172a; }
             h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
@@ -470,8 +473,8 @@ window.printEmployees =   function () {
             @media print { body { padding: 0; } }
         </style></head>
         <body>
-        <h1>Liste des employés — Radio Algérienne</h1>
-        <p>Total : ${employees.length} employés</p>
+        <h1>Annuaire Téléphonique</h1>
+        
         <table>
             <thead><tr>
                 <th>Numéro</th><th>Nom</th><th>Direction</th>
@@ -519,11 +522,11 @@ window.exportEmployees = function () {
     let y = margin + 5;
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Liste des employés — Radio Algérienne', margin, y);
+    doc.text('Annuaire Téléphonique', margin, y);
     y += 6;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Total : ${employees.length} employés`, margin, y);
+    
     y += 8;
 
     function cellX(ci) {
@@ -547,7 +550,7 @@ window.exportEmployees = function () {
         cols.forEach((c, ci) => drawCell(cellX(ci), c.width, ry, vals[ci], fill, false));
     });
 
-    doc.save(`employes_radio_algerienne_${new Date().toISOString().slice(0,10)}.pdf`);
+    doc.save(`Annuaire Téléphonique${new Date().toISOString().slice(0,10)}.pdf`);
 };
 
 if (printEmployeesBtn) printEmployeesBtn.addEventListener('click', window.printEmployees);
