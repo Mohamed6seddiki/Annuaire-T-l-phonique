@@ -18,36 +18,18 @@ class DashboardController extends Controller
 
     $query = Standard::with(['direction', 'sdirection', 'departement', 'site']);
 
-    if ($search) {
-        $searchable = ['nom', 'numero', 'service'];
-        if ($type && in_array($type, $searchable)) {
-            $query->where($type, 'like', "%{$search}%");
-        } elseif ($type === 'direction') {
-            $query->whereHas('direction', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
-        } elseif ($type === 'sous_direction') {
-            $query->whereHas('sdirection', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
-        } elseif ($type === 'departement') {
-            $query->whereHas('departement', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
-        } elseif ($type === 'site') {
-            $query->whereHas('site', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
-        } else {
-            $query->where(function ($q) use ($search) {
-                $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('numero', 'like', "%{$search}%")
-                  ->orWhere('service', 'like', "%{$search}%")
-                  ->orWhereHas('direction', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
-                  ->orWhereHas('sdirection', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
-                  ->orWhereHas('departement', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
-                  ->orWhereHas('site', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
-            });
-        }
-    }
+    $this->applySearch($query, $search, $type);
 
     $standards = $query->orderBy('nom')->paginate(5);
 
     if ($request->ajax()) {
+        $allFilteredQuery = Standard::with(['direction', 'sdirection', 'departement', 'site']);
+        $this->applySearch($allFilteredQuery, $search, $type);
+        $allFiltered = $allFilteredQuery->orderBy('nom')->get()->map(fn($s) => $this->formatStandard($s));
+
         return response()->json([
             'employees' => $standards->map(fn($s) => $this->formatStandard($s)),
+            'all_filtered' => $allFiltered,
             'pagination' => [
                 'current_page' => $standards->currentPage(),
                 'last_page' => $standards->lastPage(),
@@ -114,6 +96,34 @@ class DashboardController extends Controller
         $standard->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    private function applySearch($query, $search, $type)
+    {
+        if (!$search) return;
+
+        $searchable = ['nom', 'numero', 'service'];
+        if ($type && in_array($type, $searchable)) {
+            $query->where($type, 'like', "%{$search}%");
+        } elseif ($type === 'direction') {
+            $query->whereHas('direction', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+        } elseif ($type === 'sous_direction') {
+            $query->whereHas('sdirection', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+        } elseif ($type === 'departement') {
+            $query->whereHas('departement', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+        } elseif ($type === 'site') {
+            $query->whereHas('site', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+        } else {
+            $query->where(function ($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                  ->orWhere('numero', 'like', "%{$search}%")
+                  ->orWhere('service', 'like', "%{$search}%")
+                  ->orWhereHas('direction', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
+                  ->orWhereHas('sdirection', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
+                  ->orWhereHas('departement', fn($q) => $q->where('libelle', 'like', "%{$search}%"))
+                  ->orWhereHas('site', fn($q) => $q->where('libelle', 'like', "%{$search}%"));
+            });
+        }
     }
 
     private function formatStandard($s): array

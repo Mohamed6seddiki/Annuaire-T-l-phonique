@@ -85,7 +85,7 @@
 
         <div class="mt-6">
             <form action="{{ route('standards.destroy', $standard) }}" method="POST"
-                  onsubmit="return confirm('Supprimer définitivement {{ $standard->nom }} ?')">
+                  onsubmit="return confirm('Supprimer définitivement ' + @json($standard->nom) + ' ?')">
                 @csrf @method('DELETE')
                 <button class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1">
                     <span class="material-symbols-outlined text-lg">delete</span>

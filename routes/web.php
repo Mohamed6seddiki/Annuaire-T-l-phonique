@@ -19,15 +19,15 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::post('/employees', [DashboardController::class, 'store'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'admin'])
     ->name('employees.store');
 
 Route::put('/employees/{standard}', [DashboardController::class, 'update'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'admin'])
     ->name('employees.update');
 
 Route::delete('/employees/{standard}', [DashboardController::class, 'destroy'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'admin'])
     ->name('employees.destroy');
 
 Route::middleware('auth')->group(function () {
@@ -36,11 +36,11 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('admin')->group(function () {
         Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::post('/users', [UserController::class, 'store'])->middleware('throttle:10,60')->name('users.store');
     });
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::resource('standards', StandardController::class);
     Route::resource('directions', DirectionController::class);
     Route::resource('sdirections', SdirectionController::class);

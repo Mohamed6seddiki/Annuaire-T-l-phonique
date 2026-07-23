@@ -39,7 +39,7 @@
                 background-repeat: no-repeat;
             }
 
-            /* Light mode → overlay فاتح */
+        /* Light mode → overlay فاتح */
             .bg-overlay {
                 min-height: 100vh;
                 background: rgba(220, 230, 255, 0.40);
@@ -47,7 +47,7 @@
                 transition: background 0.4s ease;
             }
 
-            /* Dark mode → overlay داكن */
+            
             html.dark .bg-overlay {
                 background: rgba(8, 12, 28, 0.70);
             }

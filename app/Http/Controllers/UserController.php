@@ -28,6 +28,7 @@ class UserController extends Controller
             'username' => $data['username'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role' => 'user',
         ]);
 
         return redirect()->route('users.create')->with('status', 'Utilisateur créé avec succès.');

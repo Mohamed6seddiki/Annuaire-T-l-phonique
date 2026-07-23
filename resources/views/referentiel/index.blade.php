@@ -80,12 +80,14 @@ $items_map = [
                             <td class="px-4 py-3 text-sm text-gray-900">{{ $item->libelle }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600" dir="rtl">{{ $item->libelle_arb }}</td>
                             <td class="px-4 py-3 text-sm text-center whitespace-nowrap">
-                                <button onclick="openEditModal('{{ $key }}', '{{ $item->id }}', '{{ addslashes($item->libelle) }}', '{{ addslashes($item->libelle_arb ?? '') }}')"
-                                        class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Modifier">
+                                <button data-key="{{ $key }}" data-id="{{ $item->id }}"
+                                        data-libelle='@json($item->libelle)'
+                                        data-libelle-arb='@json($item->libelle_arb ?? '')'
+                                        class="js-edit-ref-btn p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Modifier">
                                     <span class="material-symbols-outlined text-lg">edit</span>
                                 </button>
                                 <form action="{{ route('referentiel.destroy', [$key, $item->id]) }}" method="POST"
-                                      onsubmit="return confirm('Supprimer {{ $sec['label'] }} « {{ $item->libelle }} » ?')" class="inline">
+                                      onsubmit="return confirm('Supprimer ' + @json($sec['label']).replace(/"+/g, '') + ' « ' + @json($item->libelle) + ' » ?')" class="inline">
                                     @csrf @method('DELETE')
                                     <button class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Supprimer">
                                         <span class="material-symbols-outlined text-lg">delete</span>
@@ -146,7 +148,7 @@ $items_map = [
                                 <span class="material-symbols-outlined text-lg">edit</span>
                             </a>
                             <form action="{{ route('standards.destroy', $s) }}" method="POST"
-                                  onsubmit="return confirm('Supprimer {{ $s->nom }} ?')" class="inline">
+                                  onsubmit="return confirm('Supprimer ' + @json($s->nom) + ' ?')" class="inline">
                                 @csrf @method('DELETE')
                                 <button class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Supprimer">
                                     <span class="material-symbols-outlined text-lg">delete</span>
@@ -241,6 +243,17 @@ function openEditModal(type, id, libelle, libelleArb) {
     refLibelleArb.value = libelleArb;
     refModal.classList.remove('hidden');
 }
+
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.js-edit-ref-btn');
+    if (btn) {
+        var type = btn.dataset.key;
+        var id = btn.dataset.id;
+        var libelle = btn.dataset.libelle || '';
+        var libelleArb = btn.dataset.libelleArb || '';
+        openEditModal(type, id, libelle, libelleArb);
+    }
+});
 
 function closeRefModal() {
     refModal.classList.add('hidden');

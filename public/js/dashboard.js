@@ -117,12 +117,13 @@ const employeesBaseUrl = document.body.dataset.employeesBaseUrl;
 
 window._allEmployees = window._allEmployees || [];
 window._currentEmployees = window._currentEmployees || [];
+window._filteredEmployees = null;
 
 let currentPage = 1;
 let debounceTimer;
 
 function openModal(title) {
-    modalTitle.textContent = title || 'Ajouter un employé';
+    modalTitle.textContent = title || 'Ajouter  ';
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
@@ -135,7 +136,7 @@ function closeModal() {
 }
 
 if (addEmployeeBtn) {
-    addEmployeeBtn.addEventListener('click', () => openModal('Ajouter un employé'));
+    addEmployeeBtn.addEventListener('click', () => openModal('Ajouter '));
 }
 modalOverlay.addEventListener('click', closeModal);
 modalCloseBtn.addEventListener('click', closeModal);
@@ -238,12 +239,12 @@ window.editEmployee = function (id) {
     document.getElementById('form-niveau').value = emp.niveau || '';
     formId.value = id;
 
-    openModal("Modifier l'employé");
+    openModal("Modifier ");
 };
 
 window.deleteEmployee = async function (id) {
     const result = await Swal.fire({
-        title: 'Supprimer cet employé ?',
+        title: 'Supprimer ce Numéro ?',
         text: "Cette action est irréversible !",
         icon: 'warning',
         showCancelButton: true,
@@ -342,6 +343,7 @@ async function fetchEmployees(page = 1) {
         });
 
         const data = await response.json();
+        window._filteredEmployees = (search || type) && data.all_filtered ? data.all_filtered : null;
         renderTable(data.employees);
         renderPagination(data.pagination);
     } catch (error) {
@@ -352,6 +354,17 @@ async function fetchEmployees(page = 1) {
 }
 
 window.fetchEmployees = fetchEmployees;
+
+function htmlEncode(str) {
+    var el = document.createElement('span');
+    el.textContent = str;
+    return el.innerHTML;
+}
+
+function sanitizeColor(val, fallback) {
+    if (/^(#[0-9a-fA-F]{3,8}|rgb(a)?\(|hsl(a)?\()/.test(val)) return val;
+    return fallback;
+}
 
 function renderTable(employees) {
     window._currentEmployees = employees;
@@ -371,14 +384,19 @@ function renderTable(employees) {
     }
 
     tableBody.innerHTML = employees.map(emp => {
+        var eid = String(emp.id).replace(/'/g, '');
+        var sc = sanitizeColor(emp.service_color, '#1d4ed8');
+        var sb = sanitizeColor(emp.service_bg, '#eff6ff');
+        var sbd = sanitizeColor(emp.service_border, '#bfdbfe');
+
         const actions = window.isAdmin ? `
             <td class="px-4 py-4 text-center whitespace-nowrap">
-                <button onclick="editEmployee('${emp.id}')"
-                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Modifier">
+                <button data-id="${eid}"
+                    class="js-edit-btn p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Modifier">
                     <span class="material-symbols-outlined text-lg">edit</span>
                 </button>
-                <button onclick="deleteEmployee('${emp.id}')"
-                    class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Supprimer">
+                <button data-id="${eid}"
+                    class="js-delete-btn p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Supprimer">
                     <span class="material-symbols-outlined text-lg">delete</span>
                 </button>
             </td>
@@ -386,18 +404,18 @@ function renderTable(employees) {
 
         return `
             <tr class="hover:bg-surface-container-low/50 transition-colors group">
-                <td class="px-4 py-4 font-medium text-on-surface">${emp.numero}</td>
-                <td class="px-4 py-4 text-secondary">${emp.nom}</td>
-                <td class="px-4 py-4 text-secondary">${emp.direction}</td>
-                <td class="px-4 py-4 text-secondary">${emp.sous_direction}</td>
-                <td class="px-4 py-4 text-secondary">${emp.departement}</td>
+                <td class="px-4 py-4 font-medium text-on-surface">${htmlEncode(emp.numero)}</td>
+                <td class="px-4 py-4 text-secondary">${htmlEncode(emp.nom)}</td>
+                <td class="px-4 py-4 text-secondary">${htmlEncode(emp.direction)}</td>
+                <td class="px-4 py-4 text-secondary">${htmlEncode(emp.sous_direction)}</td>
+                <td class="px-4 py-4 text-secondary">${htmlEncode(emp.departement)}</td>
                 <td class="px-4 py-4">
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
-                        style="color:${emp.service_color ?? '#1d4ed8'};background-color:${emp.service_bg ?? '#eff6ff'};border-color:${emp.service_border ?? '#bfdbfe'};">
-                        ${emp.service}
+                        style="color:${sc};background-color:${sb};border-color:${sbd};">
+                        ${htmlEncode(emp.service)}
                     </span>
                 </td>
-                <td class="px-4 py-4 text-secondary">${emp.site}</td>
+                <td class="px-4 py-4 text-secondary">${htmlEncode(emp.site)}</td>
                 ${actions}
             </tr>
         `;
@@ -453,28 +471,41 @@ typeSelect.addEventListener('change', () => fetchEmployees(1));
 searchInput.addEventListener('focus', () => searchInput.parentElement.classList.add('scale-[1.01]'));
 searchInput.addEventListener('blur',  () => searchInput.parentElement.classList.remove('scale-[1.01]'));
 
-window.printEmployees =   function () {
-   
+function formatDate() {
+    const d = new Date();
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+}
 
-    const employees = window._allEmployees?.length ? window._allEmployees : window._currentEmployees;
+window.printEmployees = function () {
+    const employees = window._filteredEmployees || window._allEmployees || window._currentEmployees;
     if (!employees || employees.length === 0) return;
+
+    const dateStr = formatDate();
 
     const html = `
         <!DOCTYPE html>
         <html><head><title>Annuaire Téléphonique</title>
         <style>
-            body { font-family: Inter, sans-serif; padding: 24px; color: #0f172a; }
-            h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-            p { font-size: 12px; color: #64748b; margin-bottom: 16px; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th { background: #f1f5f9; padding: 8px 12px; text-align: left; border: 1px solid #e2e8f0; font-weight: 600; color: #475569; }
-            td { padding: 8px 12px; border: 1px solid #e2e8f0; color: #334155; }
-            tr:nth-child(even) td { background: #f8fafc; }
+            body { font-family: 'Times New Roman', Times, serif; padding: 20px 30px; color: #000; }
+            .header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+            .header img { height: 50px; width: auto; }
+            .header h1 { font-size: 22px; font-weight: 700; margin: 0; color: #000; }
+            .info { display: flex; justify-content: space-between; font-size: 12px; color: #333; margin: 24px 0 12px 0; padding-bottom: 6px; border-bottom: 1px solid #999; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            th { background: #e5e7eb; padding: 7px 10px; text-align: left; border: 1px solid #999; font-weight: 700; color: #000; }
+            td { padding: 6px 10px; border: 1px solid #999; color: #000; }
+            tr:nth-child(even) td { background: #f9fafb; }
             @media print { body { padding: 0; } }
         </style></head>
         <body>
-        <h1>Annuaire Téléphonique</h1>
-        
+        <div class="header">
+            <img src="/Radio-dz.png" alt="Logo">
+            <h1>Radio Algérienne</h1>
+        </div>
+        <div class="info">
+            <span>Nombre d'éléments  : ${employees.length}</span>
+            <span>Date d'impression : ${dateStr}</span>
+        </div>
         <table>
             <thead><tr>
                 <th>Numéro</th><th>Nom</th><th>Direction</th>
@@ -482,9 +513,9 @@ window.printEmployees =   function () {
             </tr></thead>
             <tbody>
                 ${employees.map(e => `<tr>
-                    <td>${e.numero ?? ''}</td><td>${e.nom ?? ''}</td><td>${e.direction ?? ''}</td>
-                    <td>${e.sous_direction ?? ''}</td><td>${e.departement ?? ''}</td>
-                    <td>${e.service ?? ''}</td><td>${e.site ?? ''}</td>
+                    <td>${htmlEncode(e.numero ?? '')}</td><td>${htmlEncode(e.nom ?? '')}</td><td>${htmlEncode(e.direction ?? '')}</td>
+                    <td>${htmlEncode(e.sous_direction ?? '')}</td><td>${htmlEncode(e.departement ?? '')}</td>
+                    <td>${htmlEncode(e.service ?? '')}</td><td>${htmlEncode(e.site ?? '')}</td>
                 </tr>`).join('')}
             </tbody>
         </table>
@@ -503,12 +534,12 @@ window.printEmployees =   function () {
     printWindow.document.close();
 };
 
-window.exportEmployees = function () {
-    const employees = window._allEmployees?.length ? window._allEmployees : window._currentEmployees;
+window.exportEmployees = async function () {
+    const employees = window._filteredEmployees || window._allEmployees || window._currentEmployees;
     if (!employees || employees.length === 0) return;
 
     const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
-    const margin = 10;
+    const margin = 12;
     const rowH = 7;
     const cols = [
         { title: 'Numéro', width: 20 },
@@ -519,15 +550,42 @@ window.exportEmployees = function () {
         { title: 'Service', width: 30 },
         { title: 'Site', width: 30 },
     ];
-    let y = margin + 5;
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Annuaire Téléphonique', margin, y);
-    y += 6;
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Load logo
+    try {
+        const logoImg = await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject();
+            img.src = '/Radio-dz.png';
+        });
+        doc.addImage(logoImg, 'PNG', margin, margin, 22, 22);
+    } catch (e) {}
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('times', 'bold');
+    doc.text('Radio Algérienne', margin + 28, margin + 14);
+
+    // Info line
+    let y = margin + 28;
     doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    
-    y += 8;
+    doc.setFont('times', 'normal');
+    doc.setTextColor(51, 51, 51);
+    const dateStr = formatDate();
+    doc.text(`Nombre d'éléments : ${employees.length}`, margin, y);
+    doc.text(`Date d'impression : ${dateStr}`, pageWidth - margin, y, { align: 'right' });
+
+    // Underline
+    y += 2;
+    doc.setDrawColor(153, 153, 153);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 6;
+
+    // Reset text color for table
+    doc.setTextColor(0, 0, 0);
 
     function cellX(ci) {
         return margin + cols.slice(0, ci).reduce((s, c) => s + c.width, 0);
@@ -536,21 +594,21 @@ window.exportEmployees = function () {
     function drawCell(x, w, yp, text, fill, bold) {
         if (fill) doc.setFillColor(fill[0], fill[1], fill[2]);
         doc.rect(x, yp, w, rowH, fill ? 'FD' : 'D');
-        doc.setFont('helvetica', bold ? 'bold' : 'normal');
-        doc.setFontSize(8);
-        doc.setTextColor(bold ? 71 : 51, bold ? 85 : 65, bold ? 105 : 85);
+        doc.setFont('times', bold ? 'bold' : 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
         doc.text(String(text ?? ''), x + 1, yp + rowH - 2);
     }
 
-    cols.forEach((c, ci) => drawCell(cellX(ci), c.width, y, c.title, [241, 245, 249], true));
+    cols.forEach((c, ci) => drawCell(cellX(ci), c.width, y, c.title, [229, 231, 235], true));
     employees.forEach((e, i) => {
         const ry = y + rowH + i * rowH;
         const vals = [e.numero, e.nom, e.direction, e.sous_direction, e.departement, e.service, e.site];
-        const fill = i % 2 === 0 ? [248, 250, 252] : null;
+        const fill = i % 2 === 0 ? [249, 250, 251] : null;
         cols.forEach((c, ci) => drawCell(cellX(ci), c.width, ry, vals[ci], fill, false));
     });
 
-    doc.save(`Annuaire Téléphonique${new Date().toISOString().slice(0,10)}.pdf`);
+    doc.save(`Annuaire Téléphonique ${new Date().toISOString().slice(0, 10)}.pdf`);
 };
 
 if (printEmployeesBtn) printEmployeesBtn.addEventListener('click', window.printEmployees);

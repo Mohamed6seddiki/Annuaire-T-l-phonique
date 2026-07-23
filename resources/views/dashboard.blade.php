@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
-
+    
     <script>
         function setFavicon() {
             var link = document.querySelector('link[rel="icon"]');
@@ -56,6 +56,13 @@
     </script>
     <script>
     window.isAdmin = @json(auth()-> user()-> can('admin'));
+
+    document.addEventListener('click', function(e) {
+        var editBtn = e.target.closest('.js-edit-btn');
+        if (editBtn) { editEmployee(editBtn.dataset.id); return; }
+        var deleteBtn = e.target.closest('.js-delete-btn');
+        if (deleteBtn) { deleteEmployee(deleteBtn.dataset.id); }
+    });
     </script>
 
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -226,6 +233,14 @@
                         <h1 class="md:hidden font-h1-mobile text-h1-mobile font-semibold text-on-surface">Annuaire
                             Téléphonique</h1>
                     </div>
+                    @can('admin')
+                     <div class="flex items-center gap-md">
+                        <button id="add-employee-btn"
+                            class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm">
+                            Add 
+                        </button>
+                    </div>
+                    @endcan
                    
                 </div>
             </header>
@@ -324,13 +339,13 @@
                                     <td class="px-4 py-4 text-secondary">{{ $employee['site'] }}</td>
                                     @can('admin')
                                     <td class="px-4 py-4 text-center whitespace-nowrap">
-                                        <button onclick="editEmployee('{{ $employee['id'] }}')"
-                                            class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                        <button data-id="{{ $employee['id'] }}"
+                                            class="js-edit-btn p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                                             title="Modifier">
                                             <span class="material-symbols-outlined text-lg">edit</span>
                                         </button>
-                                        <button onclick="deleteEmployee('{{ $employee['id'] }}')"
-                                            class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                        <button data-id="{{ $employee['id'] }}"
+                                            class="js-delete-btn p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                             title="Supprimer">
                                             <span class="material-symbols-outlined text-lg">delete</span>
                                         </button>
@@ -344,7 +359,7 @@
                                         <div class="flex flex-col items-center gap-3">
                                             <span class="material-symbols-outlined text-4xl text-outline"
                                                 data-icon="group_off">group_off</span>
-                                            <p class="text-body-md">Aucun employé trouvé</p>
+                                            <p class="text-body-md">Aucun Numéro trouvé</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -373,7 +388,7 @@
                                 Affichage de <span
                                     class="font-semibold text-on-surface">{{ $employees->count() }}</span>
                                 sur <span class="font-semibold text-on-surface">{{ $employees->total() }}</span>
-                                employés
+                                
                             </div>
 
                             <nav class="flex items-center gap-1" id="page-nav">
@@ -416,10 +431,10 @@
     {{-- Add Employee Modal --}}
     <div id="employee-modal" class="fixed inset-0 z-[60] hidden">
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" id="modal-overlay"></div>
-    <div class="fixed inset-0 flex items-center justify-center p-4">
+    <div class="fixed inset-0 flex items-center justify-center p-4">    
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                <h2 id="modal-title" class="text-xl font-semibold text-gray-900">Ajouter un employé</h2>
+                <h2 id="modal-title" class="text-xl font-semibold text-gray-900">Ajouter </h2>
                 <button id="modal-close-btn" class="p-1 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
                     <span class="material-symbols-outlined">close</span>
                 </button>
