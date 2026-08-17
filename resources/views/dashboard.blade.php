@@ -376,7 +376,7 @@
                                 <span class="material-symbols-outlined text-lg">print</span>
                                 Imprimer la liste
                             </button>
-                            <button id="export-employees-btn" type="button" onclick="exportEmployees()"
+                            <button id="export-employees-btn" type="button"
                                 class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm">
                                 <span class="material-symbols-outlined text-lg">download</span>
                                 Télécharger
@@ -588,8 +588,6 @@
     </nav>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- dashboard -->
     <script type="module" src="{{ asset('js/dashboard.js') }}"></script>
 

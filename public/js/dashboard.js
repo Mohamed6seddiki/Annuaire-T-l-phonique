@@ -471,144 +471,23 @@ typeSelect.addEventListener('change', () => fetchEmployees(1));
 searchInput.addEventListener('focus', () => searchInput.parentElement.classList.add('scale-[1.01]'));
 searchInput.addEventListener('blur',  () => searchInput.parentElement.classList.remove('scale-[1.01]'));
 
-function formatDate() {
-    const d = new Date();
-    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-}
-
 window.printEmployees = function () {
-    const employees = window._filteredEmployees || window._allEmployees || window._currentEmployees;
-    if (!employees || employees.length === 0) return;
+    const search = document.getElementById('search')?.value || '';
+    const type = document.getElementById('type')?.value || '';
+    const params = new URLSearchParams({ print: '1', search, type, page: currentPage });
+    const url = `/dashboard/print?${params}`;
 
-    const dateStr = formatDate();
-
-    const html = `
-        <!DOCTYPE html>
-        <html><head><title>Annuaire Téléphonique</title>
-        <style>
-            body { font-family: 'Times New Roman', Times, serif; padding: 20px 30px; color: #000; }
-            .header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
-            .header img { height: 50px; width: auto; }
-            .header h1 { font-size: 22px; font-weight: 700; margin: 0; color: #000; }
-            .info { display: flex; justify-content: space-between; font-size: 12px; color: #333; margin: 24px 0 12px 0; padding-bottom: 6px; border-bottom: 1px solid #999; }
-            table { width: 100%; border-collapse: collapse; font-size: 11px; }
-            th { background: #e5e7eb; padding: 7px 10px; text-align: left; border: 1px solid #999; font-weight: 700; color: #000; }
-            td { padding: 6px 10px; border: 1px solid #999; color: #000; }
-            tr:nth-child(even) td { background: #f9fafb; }
-            @media print { body { padding: 0; } }
-        </style></head>
-        <body>
-        <div class="header">
-            <img src="/Radio-dz.png" alt="Logo">
-            <h1>Radio Algérienne</h1>
-        </div>
-        <div class="info">
-            <span>Nombre d'éléments  : ${employees.length}</span>
-            <span>Date d'impression : ${dateStr}</span>
-        </div>
-        <table>
-            <thead><tr>
-                <th>Numéro</th><th>Nom</th><th>Direction</th>
-                <th>Sous-direction</th><th>Département</th><th>Service</th><th>Site</th>
-            </tr></thead>
-            <tbody>
-                ${employees.map(e => `<tr>
-                    <td>${htmlEncode(e.numero ?? '')}</td><td>${htmlEncode(e.nom ?? '')}</td><td>${htmlEncode(e.direction ?? '')}</td>
-                    <td>${htmlEncode(e.sous_direction ?? '')}</td><td>${htmlEncode(e.departement ?? '')}</td>
-                    <td>${htmlEncode(e.service ?? '')}</td><td>${htmlEncode(e.site ?? '')}</td>
-                </tr>`).join('')}
-            </tbody>
-        </table>
-        <script>
-            window.onload = function () { window.print(); setTimeout(function () { window.close(); }, 500); };
-        <\/script>
-        </body></html>`;
-
-    const printWindow = window.open('', '_blank', 'width=900,height=600');
+    const printWindow = window.open(url, '_blank', 'width=900,height=600');
     if (!printWindow) {
         alert("Veuillez autoriser les fenêtres pop-up pour ce site, puis réessayez.");
-        return;
     }
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
 };
 
-window.exportEmployees = async function () {
-    const employees = window._filteredEmployees || window._allEmployees || window._currentEmployees;
-    if (!employees || employees.length === 0) return;
-
-    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
-    const margin = 12;
-    const rowH = 7;
-    const cols = [
-        { title: 'Numéro', width: 20 },
-        { title: 'Nom', width: 40 },
-        { title: 'Direction', width: 35 },
-        { title: 'Sous-direction', width: 35 },
-        { title: 'Département', width: 35 },
-        { title: 'Service', width: 30 },
-        { title: 'Site', width: 30 },
-    ];
-
-    const pageWidth = doc.internal.pageSize.getWidth();
-
-    // Load logo
-    try {
-        const logoImg = await new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = () => reject();
-            img.src = '/Radio-dz.png';
-        });
-        doc.addImage(logoImg, 'PNG', margin, margin, 22, 22);
-    } catch (e) {}
-
-    // Title
-    doc.setFontSize(18);
-    doc.setFont('times', 'bold');
-    doc.text('Radio Algérienne', margin + 28, margin + 14);
-
-    // Info line
-    let y = margin + 28;
-    doc.setFontSize(10);
-    doc.setFont('times', 'normal');
-    doc.setTextColor(51, 51, 51);
-    const dateStr = formatDate();
-    doc.text(`Nombre d'éléments : ${employees.length}`, margin, y);
-    doc.text(`Date d'impression : ${dateStr}`, pageWidth - margin, y, { align: 'right' });
-
-    // Underline
-    y += 2;
-    doc.setDrawColor(153, 153, 153);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 6;
-
-    // Reset text color for table
-    doc.setTextColor(0, 0, 0);
-
-    function cellX(ci) {
-        return margin + cols.slice(0, ci).reduce((s, c) => s + c.width, 0);
-    }
-
-    function drawCell(x, w, yp, text, fill, bold) {
-        if (fill) doc.setFillColor(fill[0], fill[1], fill[2]);
-        doc.rect(x, yp, w, rowH, fill ? 'FD' : 'D');
-        doc.setFont('times', bold ? 'bold' : 'normal');
-        doc.setFontSize(9);
-        doc.setTextColor(0, 0, 0);
-        doc.text(String(text ?? ''), x + 1, yp + rowH - 2);
-    }
-
-    cols.forEach((c, ci) => drawCell(cellX(ci), c.width, y, c.title, [229, 231, 235], true));
-    employees.forEach((e, i) => {
-        const ry = y + rowH + i * rowH;
-        const vals = [e.numero, e.nom, e.direction, e.sous_direction, e.departement, e.service, e.site];
-        const fill = i % 2 === 0 ? [249, 250, 251] : null;
-        cols.forEach((c, ci) => drawCell(cellX(ci), c.width, ry, vals[ci], fill, false));
-    });
-
-    doc.save(`Annuaire Téléphonique ${new Date().toISOString().slice(0, 10)}.pdf`);
+window.exportEmployees = function () {
+    const search = document.getElementById('search')?.value || '';
+    const type = document.getElementById('type')?.value || '';
+    const params = new URLSearchParams({ search, type, page: currentPage });
+    window.location.href = `/dashboard/pdf?${params}`;
 };
 
 if (printEmployeesBtn) printEmployeesBtn.addEventListener('click', window.printEmployees);

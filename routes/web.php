@@ -18,6 +18,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('/dashboard/print', [DashboardController::class, 'print'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard.print');
+
+Route::get('/dashboard/pdf', [DashboardController::class, 'exportPdf'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard.pdf');
+
 Route::post('/employees', [DashboardController::class, 'store'])
     ->middleware(['auth', 'verified', 'admin'])
     ->name('employees.store');

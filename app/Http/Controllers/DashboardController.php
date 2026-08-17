@@ -8,6 +8,7 @@ use App\Models\Sdirection;
 use App\Models\Departement;
 use App\Models\Site;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DashboardController extends Controller
 {
@@ -52,6 +53,60 @@ class DashboardController extends Controller
         'sites' => Site::all(),
     ]);
 }
+
+    public function print(Request $request)
+    {
+        $search = $request->get('search', '');
+        $type = $request->get('type', '');
+        $page = (int) $request->get('page', 1);
+
+        $query = Standard::with(['direction', 'sdirection', 'departement', 'site']);
+        $this->applySearch($query, $search, $type);
+
+        $employees = $query
+            ->orderBy('nom')
+            ->paginate(5, ['*'], 'page', $page)
+            ->through(fn($s) => $this->formatStandard($s));
+
+        $logoSrc = file_exists(public_path('Radio-dz.png'))
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('Radio-dz.png')))
+            : asset('Radio-dz.png');
+
+        return view('print', [
+            'employees' => $employees,
+            'search' => $search,
+            'type' => $type,
+            'logoSrc' => $logoSrc,
+        ]);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $search = $request->get('search', '');
+        $type = $request->get('type', '');
+        $page = (int) $request->get('page', 1);
+
+        $query = Standard::with(['direction', 'sdirection', 'departement', 'site']);
+        $this->applySearch($query, $search, $type);
+
+        $employees = $query
+            ->orderBy('nom')
+            ->paginate(5, ['*'], 'page', $page)
+            ->through(fn($s) => $this->formatStandard($s));
+
+        $logoSrc = file_exists(public_path('Radio-dz.png'))
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('Radio-dz.png')))
+            : public_path('Radio-dz.png');
+
+        $pdf = Pdf::loadView('print', [
+            'employees' => $employees,
+            'search' => $search,
+            'type' => $type,
+            'logoSrc' => $logoSrc,
+        ]);
+
+        return $pdf->setPaper('a4', 'landscape')->download('Annuaire_Telephonique_' . now()->format('Y-m-d') . '.pdf');
+    }
 
     public function store(Request $request)
     {
